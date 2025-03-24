@@ -1,0 +1,31 @@
+/* Estilização de https://codepen.io/Harrix/pen/pZZZxg */
+
+#controle {
+  font-family: 'Arial', sans-serif !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1rem;
+  margin-bottom: 1.1rem;
+  font-size: 20px;
+}
+
+.btn-controle {
+  cursor: pointer;
+  outline: none;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #CCC;
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 5px;
+  display: inline;
+  transition: ease-in-out background 300ms;
+}
+
+.btn-controle:is(:focus, :hover) {
+  background-color: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.btn-impressao {
+  margin-left: 1rem;
+}

@@ -1,0 +1,99 @@
+#modal-editar-informacoes{
+  font-family: 'Arial', sans-serif !important;
+
+  width: min(calc(100vw - 0.5rem), 800px);
+  border-radius: 2.5px;
+  border: 1px solid rgba(0, 0, 0, 0.25);
+  padding: 1rem;
+}
+
+#modal-editar-informacoes::backdrop{
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+#modal-editar-informacoes .modal-header{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+.group{
+  margin-top: 0.90rem;
+}
+
+.group h4{
+  font-weight: normal;
+  margin-bottom: 0.5rem;
+}
+
+.form-group{
+  /* margin-top: 1rem; */
+  /* margin-right: 0.25rem; */
+  display: inline-block;
+}
+
+.form-group.group-check{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.form-group label{
+  display: block;
+  color: rgba(0, 0, 0, 0.5);
+  font-weight: bold;
+}
+
+.form-group.group-check label{
+  display: inline;
+  padding-top: 0;
+  margin-top: 0;
+  margin-left: 0.25rem;
+  font-weight: normal;
+}
+
+.form-group input{
+  border: 1px solid rgba(0, 0, 0, 0.25);
+  padding: 0.35rem;
+  margin-top: 0.25rem;
+  border-radius: 3px;
+  position: relative;
+}
+
+.form-group.group-check :where(input[type=checkbox], input[type=radio]){
+  margin: 0;
+  border: initial;
+}
+
+button[type=submit]{
+  width: 100%;
+  cursor: pointer;
+  outline: none;
+  padding: 0.45rem;
+  outline: none !important;
+  border: 1px solid #CCC;
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 3.5px;
+  transition: background ease-in-out 0.3s;
+  display: inline;
+  transition: ease-in-out background 300ms;
+}
+
+button[type=submit]:is(:focus, :hover){
+  background-color: rgba(0, 0, 0, 0.25);
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+.area-validation-CPF{
+  position: relative;
+}
+
+.icon-invalid-CPF{
+  /* position: absolute; */
+  right: 0.35rem;
+  /* transform: translate(0%, 62.5%); */
+  cursor: help;
+  color: #FF0000;
+}

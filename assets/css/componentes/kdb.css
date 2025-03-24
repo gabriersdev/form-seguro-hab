@@ -1,0 +1,39 @@
+kbd {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  color: #000;
+  font-size: 100%;
+  font-family: 'Arial', sans-serif;
+  vertical-align: baseline;
+  background: transparent;
+  border-color: #E6E6E6 #BEBEBE #BEBEBE #e6e6e6;
+  border-style: solid;
+  border-width: 1px 3px 4px;
+  padding: 0 5px;
+  background-color: #D2D2D2;
+  background-color: rgba(210, 210, 210, 0.9);
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  border-radius: 4px;
+}
+
+kbd.estilo-1 {
+  -moz-border-radius: 3px;
+  -moz-box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2), 0 0 0 2px #FFF inset;
+  -webkit-border-radius: 3px;
+  -webkit-box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2), 0 0 0 2px #FFF inset;
+  background-color: #F7F7F7;
+  border: 1px solid #CCC;
+  border-radius: 3px;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2), 0 0 0 2px #FFF inset;
+  color: #333;
+  display: inline-block;
+  font-family: monospace, sans-serif;
+  font-size: 100%;
+  line-height: 1.4;
+  margin: 0 0.1em;
+  padding: 0.1em 0.6em;
+  text-shadow: 0 1px 0 #FFF;
+}
