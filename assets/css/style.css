@@ -129,3 +129,7 @@ textarea::placeholder {
     display: none !important;
   }
 }
+
+sxs {
+  font-family: 'Calibri', sans-serif !important;
+}
