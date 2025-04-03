@@ -5,6 +5,12 @@ import content from "./modulos/content.js"
 
 (() => {
   try {
+    document.querySelector('#page-container').innerHTML += content
+  } catch (e) {
+    console.log(e)
+  }
+  
+  try {
     pdf2htmlEX.defaultViewer = new pdf2htmlEX.Viewer({});
   } catch (e) {
     console.log(e);
@@ -22,13 +28,13 @@ import content from "./modulos/content.js"
     console.log('Um erro ocorreu. Erro: %s', error);
   }
   
-  const replicar = (quantidade, string, adicionar) => {
-    let string_saida = String(string);
-    if (typeof string === 'string' && quantidade > string.length) {
-      for (let i = string.length; i < quantidade; i += 1) {
-        string_saida += String(adicionar);
+  const replice = (quant, string, add) => {
+    let strReturn = String(string);
+    if (typeof string === 'string' && quant > string.length) {
+      for (let i = string.length; i < quant; i += 1) {
+        strReturn += String(add);
       }
-      return string_saida;
+      return strReturn;
     }
     return string;
   };
@@ -59,10 +65,11 @@ import content from "./modulos/content.js"
   }
   
   // TODO - refazer com os campos do formulário de seguro
-  function enviarFormulario() {
-    const inputs_tratamento = ['cc_agencia', 'cc_operacao', 'cc_numero', 'cc_digito', 'cp_agencia', 'cp_operacao', 'cp_numero', 'cp_digito']; /* incluir CPFs?  */
-    console.log('XXXX')
+  function send(form) {
+    const inputs = ['cc_agencia', 'cc_numero', 'cc_digito', 'CPF_1', 'CPF_2', 'CPF_3', 'CPF_4'];
     // TODO - dar o tratamento e fazer o preenchimento dos dados
+    console.log(form)
+    console.log(Array.from(inputs.map(i => form.querySelector(`[data-input="${i}"]`))))
   }
   
   function atribuirAcoes() {
@@ -97,7 +104,7 @@ import content from "./modulos/content.js"
         case 'formulario-editar-informacoes':
           $(acao).on('submit', (event) => {
             event.preventDefault();
-            enviarFormulario();
+            send(event.target);
             acao.closest('dialog').close();
           });
           break;
@@ -183,17 +190,7 @@ import content from "./modulos/content.js"
       input.setAttribute('autocomplete', 'off');
     });
     
-    $('input[type=checkbox]').each((index, input) => {
-      $(input).on('focus', () => {
-        $(input.closest('.form-group')).addClass('focus');
-      });
-      
-      $(input).on('blur', () => {
-        $(input.closest('.form-group')).removeClass('focus');
-      });
-    });
-    
-    $('input[type=radio]').each((index, input) => {
+    $('input[type=checkbox],input[type=radio]').each((index, input) => {
       $(input).on('focus', () => {
         $(input.closest('.form-group')).addClass('focus');
       });
@@ -209,106 +206,13 @@ import content from "./modulos/content.js"
     } catch (error) {
       console.log('Um erro ocorreu. Erro: %s', error);
     }
-    
-    try {
-      const url = new URLSearchParams(new URL(window.location).search);
-      const parametros_insercao = [];
-      
-      document.querySelectorAll('sxs[refer]').forEach((sxs) => {
-        parametros_insercao.push(sxs.getAttribute('refer'));
-      });
-      
-      if (!isEmpty(parametros_insercao) && url.size > 0) {
-        // Inclusão de parâmetros como forma de substituição de chaves para tratamento
-        if (url.has('conta_comprador_numero')) url.set('cc_numero', url.get('conta_comprador_numero'));
-        if (url.has('conta_comprador_agencia')) url.set('cc_agencia', url.get('conta_comprador_agencia'));
-        if (url.has('conta_comprador_operacao')) url.set('cc_operacao', url.get('conta_comprador_operacao'));
-        
-        parametros_insercao.forEach((parametro) => {
-          if (url.has(parametro) && !isEmpty(url.get(parametro))) {
-            const elemento = document.querySelector(`[data-input=${parametro}]`);
-            const {type} = elemento;
-            
-            const parametros_para_tratar = ['CPF_1', 'CPF_2', 'CPF_3', 'CPF_4', 'n_contrato', 'cc_agencia', 'cc_operacao', 'cc_numero', 'cp_agencia', 'cp_operacao', 'cp_numero'];
-            
-            switch (type) {
-              case 'text':
-                if (parametros_para_tratar.includes(parametro)) {
-                  switch (parametro) {
-                    case 'CPF_1':
-                    case 'CPF_2':
-                    case 'CPF_3':
-                    case 'CPF_4':
-                      elemento.value = url.get(parametro).replace(/\D/g, '').substring(0, 11) || '';
-                      atribuirMascaras('cpf', elemento);
-                      if (verificarCPF(elemento.value)) {
-                        $(elemento.closest('.area-validation-CPF').querySelector('.icon-invalid-CPF')).fadeOut(500);
-                      } else {
-                        $(elemento.closest('.area-validation-CPF').querySelector('.icon-invalid-CPF')).fadeIn(500);
-                      }
-                      break;
-                    
-                    case 'n_contrato':
-                      elemento.value = url.get(parametro).replace(/\D/g, '').substring(0, 16) || '';
-                      atribuirMascaras('numero-contrato', elemento);
-                      break;
-                    
-                    case 'cc_numero':
-                    case 'cp_numero':
-                      const valor = url.get(parametro).replace(/\D/g, '') || '';
-                      elemento.value = (valor);
-                      atribuirMascaras('conta', elemento);
-                      if (elemento.dataset.input === 'cc_numero') {
-                        $('sxs[refer="cc_digito"]').text(numero_e_digito(valor).digito);
-                        $('[data-e="dados-bancarios-conta-corrente"]').show(300);
-                        document.querySelector('[data-input="conta_corrente"]').checked = true;
-                      } else if (elemento.dataset.input === 'cp_numero') {
-                        $('sxs[refer="cp_digito"]').text(numero_e_digito(valor).digito);
-                        $('[data-e="dados-bancarios-conta-poupanca"]').show(300);
-                        document.querySelector('[data-input="conta_poupanca"]').checked = true;
-                      }
-                      break;
-                    
-                    case 'cc_agencia':
-                    case 'cp_agencia':
-                      elemento.value = (url.get(parametro).replace(/\D/, '') || '').substring(0, 4);
-                      atribuirMascaras('agencia', elemento);
-                      break;
-                    
-                    case 'cc_operacao':
-                    case 'cp_operacao':
-                      elemento.value = (url.get(parametro).replace(/\D/, '') || '').substring(0, 4);
-                      atribuirMascaras('operacao', elemento);
-                      break;
-                  }
-                } else {
-                  elemento.value = url.get(parametro).replaceAll('-', ' ');
-                }
-                break;
-              
-              case 'checkbox':
-              case 'radio':
-                elemento.checked = (url.get(parametro) === 'true');
-                break;
-            }
-          }
-        });
-        enviarFormulario();
-        // Clicando no botão de impressão
-        setTimeout(() => {
-          document.querySelector('.btn-impressao').click();
-        }, 500);
-      }
-    } catch (error) {
-      console.log('Ocorreu um erro ao tentar recuperar os dados da URL. Erro: %s', error);
-    }
   });
   
-  const antes_de_imprimir = () => {
+  const beforePrint = () => {
     $('#controle').hide();
   };
   
-  const depois_de_imprimir = () => {
+  const afterPrint = () => {
     $('#controle').show();
   };
   
@@ -316,29 +220,114 @@ import content from "./modulos/content.js"
     const mediaQueryList = window.matchMedia('print');
     mediaQueryList.addListener((mql) => {
       if (mql.matches) {
-        antes_de_imprimir();
+        beforePrint();
       } else {
-        depois_de_imprimir();
+        afterPrint();
       }
     });
   }
   
-  window.onbeforeprint = antes_de_imprimir();
-  window.onafterprint = depois_de_imprimir();
+  window.onbeforeprint = beforePrint();
+  window.onafterprint = afterPrint();
   
   $('.btn-impressao').on('click', (event) => {
     event.preventDefault();
     window.print();
   });
   
+  // Ativar modal editar informações
   document.addEventListener('keyup', (evento) => {
     if (!isEmpty(evento.keyCode)) {
       if (evento.keyCode === 45) {
-        // Ativar modal editar informações
         exibirModalEditarInformacoes();
       }
     }
   });
 })();
 
-document.querySelector('#page-container').innerHTML += content
+const refsAndSpaces = Array.from(document.querySelectorAll('sxs[refer]')).map(e => [e.getAttribute('refer'), e.textContent.match(/\s/g).length]);
+
+console.log(refsAndSpaces);
+
+const verifyValuesInParams = () => {
+  try {
+    const url = new URLSearchParams(new URL(window.location).search);
+    const parametros_insercao = [];
+    
+    document.querySelectorAll('sxs[refer]').forEach((sxs) => {
+      parametros_insercao.push(sxs.getAttribute('refer'));
+    });
+    
+    if (!isEmpty(parametros_insercao) && url.size > 0) {
+      // Inclusão de parâmetros como forma de substituição de chaves para tratamento
+      if (url.has('conta_comprador_numero')) url.set('cc_numero', url.get('conta_comprador_numero'));
+      if (url.has('conta_comprador_agencia')) url.set('cc_agencia', url.get('conta_comprador_agencia'));
+      if (url.has('conta_comprador_operacao')) url.set('cc_operacao', url.get('conta_comprador_operacao'));
+      
+      parametros_insercao.forEach((parametro) => {
+        if (url.has(parametro) && !isEmpty(url.get(parametro))) {
+          const elemento = document.querySelector(`[data-input=${parametro}]`);
+          const {type} = elemento;
+          
+          const parametros_para_tratar = ['CPF_1', 'CPF_2', 'CPF_3', 'CPF_4', 'n_contrato', 'cc_agencia', 'cc_operacao', 'cc_numero', 'cp_agencia', 'cp_operacao', 'cp_numero'];
+          
+          switch (type) {
+            case 'text':
+              if (parametros_para_tratar.includes(parametro)) {
+                switch (parametro) {
+                  case 'CPF_1':
+                  case 'CPF_2':
+                  case 'CPF_3':
+                  case 'CPF_4':
+                    elemento.value = url.get(parametro).replace(/\D/g, '').substring(0, 11) || '';
+                    atribuirMascaras('cpf', elemento);
+                    if (verificarCPF(elemento.value)) {
+                      $(elemento.closest('.area-validation-CPF').querySelector('.icon-invalid-CPF')).fadeOut(500);
+                    } else {
+                      $(elemento.closest('.area-validation-CPF').querySelector('.icon-invalid-CPF')).fadeIn(500);
+                    }
+                    break;
+                  
+                  case 'n_contrato':
+                    elemento.value = url.get(parametro).replace(/\D/g, '').substring(0, 16) || '';
+                    atribuirMascaras('numero-contrato', elemento);
+                    break;
+                  
+                  case 'cc_numero':
+                    const valor = url.get(parametro).replace(/\D/g, '') || '';
+                    elemento.value = (valor);
+                    atribuirMascaras('conta', elemento);
+                    if (elemento.dataset.input === 'cc_numero') {
+                      console.log('cc_numero', elemento);
+                    }
+                    break;
+                  
+                  case 'cc_agencia':
+                    elemento.value = (url.get(parametro).replace(/\D/, '') || '').substring(0, 4);
+                    atribuirMascaras('agencia', elemento);
+                    break;
+                }
+              } else {
+                elemento.value = url.get(parametro).replaceAll('-', ' ');
+              }
+              break;
+            
+            case 'checkbox':
+            case 'radio':
+              elemento.checked = (url.get(parametro) === 'true');
+              break;
+          }
+        }
+      });
+      
+      // TODO - enviarFormulario();
+      
+      // Clicando no botão de impressão
+      setTimeout(() => {
+        document.querySelector('.btn-impressao').click();
+      }, 500);
+    }
+  } catch (error) {
+    console.log('Ocorreu um erro ao tentar recuperar os dados da URL. Erro: %s', error);
+  }
+}
