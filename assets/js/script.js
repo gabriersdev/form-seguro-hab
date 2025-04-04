@@ -133,10 +133,7 @@ import content from "./modulos/content.js"
         
         case 'formulario-editar-informacoes':
           $(acao).on('submit', (event) => {
-            console.log(new FormData(event.target));
             event.preventDefault();
-            return
-            
             send(event.target);
             acao.closest('dialog').close();
           });
