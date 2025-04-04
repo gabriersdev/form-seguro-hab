@@ -66,10 +66,18 @@ import content from "./modulos/content.js"
   
   // TODO - refazer com os campos do formulário de seguro
   function send(form) {
-    const inputs = ['cc_agencia', 'cc_numero', 'cc_digito', 'CPF_1', 'CPF_2', 'CPF_3', 'CPF_4'];
+    const inputs = ['cc_agencia', 'cc_numero', 'cc_operacao', 'n_contrato', 'CPF_1', 'CPF_2', 'CPF_3', 'CPF_4'];
     // TODO - dar o tratamento e fazer o preenchimento dos dados
     console.log(form)
-    console.log(Array.from(inputs.map(i => form.querySelector(`[data-input="${i}"]`))))
+    
+    const formData = Array.from(inputs.map(i => [i, form.querySelector(`[data-input="${i}"]`).value]))
+    
+    formData.forEach(i => {
+      const sxs = document.querySelector(`sxs[refer="${i[0]}"]`)
+      if (sxs) sxs.textContent = i[1]
+      else console.log(i[0])
+    })
+    
   }
   
   function atribuirAcoes() {
@@ -248,6 +256,26 @@ import content from "./modulos/content.js"
 const refsAndSpaces = Array.from(document.querySelectorAll('sxs[refer]')).map(e => [e.getAttribute('refer'), e.textContent.match(/\s/g).length]);
 
 console.log(refsAndSpaces);
+
+const inputsFormModal = Array.from(document.querySelectorAll('dialog input')).map(e => e.id);
+console.log(inputsFormModal);
+
+const testValues = {
+  "CPF_1": "123.456.789-09",
+  "CPF_2": "123.456.789",
+  "CPF_3": "123.456.789",
+  "CPF_4": "123.456.789",
+  "n_contrato": "12345678909123",
+  "cc_agencia": "1700",
+  "cc_operacao": "3701",
+  "cc_numero": "0005500000001",
+  "cidade": "BELO HORIZONTE",
+  "data_assinatura": "2025-03-01Z00:00:00"
+}
+
+for (let id in testValues) {
+  document.getElementById(id).value = testValues[id];
+}
 
 const verifyValuesInParams = () => {
   try {
