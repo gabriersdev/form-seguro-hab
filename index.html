@@ -2077,7 +2077,7 @@
   <script type="module" src="./assets/js/frameworks/moz.js" defer crossorigin="anonymous"></script>
   <script type="module" src="./assets/js/script.js" defer crossorigin="anonymous"></script>
   <script src="./assets/js/PDF2HTMLEx.js" crossorigin="anonymous"></script>
-<title>Tic Tic Tic</title>
+<title>MO30844v001 - Formulário de Seguro Habitacional</title>
 </head>
 <body>
 <div id="sidebar">
@@ -2105,7 +2105,7 @@
         <div class="form-group">
           <div class="area-validation-CPF">
             <label for="CPF_1">CPF</label>
-            <input type="text" size="16" id="CPF_1" data-input="CPF_1" data-mascara="cpf" placeholder="000.000.000-00" maxlength="14">
+            <input type="text" size="16" id="CPF_1" data-input="CPF_1" data-mascara="cpf" placeholder="000.000.000-00" maxlength="14" required>
             <span class="icon-invalid-CPF" title="CPF inválido">&#10005;</span>
           </div>
           <br>
@@ -2134,29 +2134,33 @@
 
         <div class="form-group">
           <label for="n_contrato">Nº do contrato</label>
-          <input type="text" id="n_contrato" data-input="n_contrato" size="18" data-mascara="numero-contrato" placeholder="0.0000.0000.000-0" maxlength="18">
+          <input type="text" id="n_contrato" data-input="n_contrato" size="18" data-mascara="numero-contrato" placeholder="0.0000.0000.000-0" maxlength="18" required>
         </div>
       </div>
 
       <div class="group">
         <div class="form-group">
           <label for="n_contrato">Nº da conta para débito</label>
-          <input type="text" id="cc_agencia" data-input="cc_agencia" placeholder="Agência" size="4" data-mascara="agencia" maxlength="4" valuex="1234" autocomplete="off">
-          <input type="text" id="cc_operacao" data-input="cc_operacao" placeholder="Operação" size="5" data-mascara="operacao" maxlength="4" valuex="4567" autocomplete="off">
-          <input type="text" id="cc_numero" data-input="cc_numero" placeholder="Número" size="14" data-mascara="conta" maxlength="14" valuex="123456" autocomplete="off">
+          <input type="text" id="cc_agencia" data-input="cc_agencia" placeholder="Agência" size="4" data-mascara="agencia" maxlength="4" valuex="1234" autocomplete="off" required>
+          <input type="text" id="cc_operacao" data-input="cc_operacao" placeholder="Operação" size="5" data-mascara="operacao" maxlength="4" valuex="4567" autocomplete="off" required>
+          <input type="text" id="cc_numero" data-input="cc_numero" placeholder="Número" size="14" data-mascara="conta" maxlength="14" valuex="123456" autocomplete="off" required>
         </div>
       </div>
 
       <div class="group">
         <div class="form-group">
           <label for="cidade">Cidade</label>
-          <input type="text" id="cidade" data-input="cidade" size="15" value="Belo Horizonte">
+          <input type="text" id="cidade" data-input="cidade" size="15" value="Belo Horizonte" required>
         </div>
 
         <div class="form-group">
           <label for="data_assinatura">Data de assinatura</label>
-          <input type="date" id="data_assinatura" data-input="data_assinatura">
+          <input type="date" id="data_assinatura" data-input="data_assinatura" required>
         </div>
+      </div>
+
+      <div class="alert alert-warning">
+        <p>Informe pelo menos 1 CPF, o número do contrato e os dados da conta bancária, além da cidade e data atual para que o formulário seja gerado.</p>
       </div>
 
       <button type="submit" class="block mt-1">Enviar</button>

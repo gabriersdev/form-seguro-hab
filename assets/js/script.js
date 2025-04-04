@@ -9,6 +9,7 @@ import content from "./modulos/content.js"
   try {
     document.querySelector('#page-container').innerHTML += content
   } catch (e) {
+    alert(`Ocorreu um erro! ${e.message}`)
     console.log(e)
   }
   
@@ -18,17 +19,13 @@ import content from "./modulos/content.js"
     console.log(e);
   }
   
-  document.querySelectorAll('[data-recarrega-pagina]').forEach((botao) => {
-    botao.addEventListener('click', () => {
-      window.location.reload();
-    });
-  });
-  
   try {
     pdf2htmlEX.defaultViewer = new pdf2htmlEX.Viewer({});
   } catch (error) {
     console.log('Um erro ocorreu. Erro: %s', error);
   }
+  
+  const refsAndSpaces = Array.from(document.querySelectorAll('sxs[refer]')).map(e => [e.getAttribute('refer'), e.textContent.match(/\s/g).length || 10]);
   
   const replace = (quant, string, add) => {
     let strReturn = String(string);
@@ -40,8 +37,6 @@ import content from "./modulos/content.js"
     }
     return string;
   };
-  
-  const refsAndSpaces = Array.from(document.querySelectorAll('sxs[refer]')).map(e => [e.getAttribute('refer'), e.textContent.match(/\s/g).length || 10]);
   
   function showModalEditInfos() {
     document.querySelector('#modal-editar-informacoes').showModal();
@@ -58,32 +53,53 @@ import content from "./modulos/content.js"
     const cOperation = formData.find(f => f[0] === "cc_operacao");
     const cNumber = formData.find(f => f[0] === "cc_numero")
     
-    if (cOperation && cNumber) {
+    if (cOperation[1] && cNumber[1]) {
       cNumber[1] = `${cOperation[1]}.${cNumber[1]}`;
       formData.splice(formData.indexOf(cOperation), 1);
-    } else alert("Faltou preencher o número ou a operação da conta!")
+    } else {
+      alert("Faltou preencher o número ou a operação da conta!")
+      return;
+    }
+    
+    if (!formData.find(f => f[0] === "n_contrato")[1]) {
+      alert("Número do contrato não foi preenchido!")
+      return;
+    }
     
     // Cria o item date_full e remove data_assinatura e cidade
     const city = formData.find(f => f[0] === "cidade");
     const signDate = formData.find(f => f[0] === "data_assinatura");
     
-    if (city && signDate) {
+    if (city[1] && signDate[1]) {
       const date = new Date(`${signDate[1]}T00:00:00Z`)
       formData.push(["date_full", `${city[1]}, ${('0' + date.getDay()).slice(-2)} de ${date.toLocaleDateString("pt-BR", {
         month: "long",
         year: "numeric"
       })}`])
-    } else alert("Faltou preencher a cidade ou a data de assinatura!")
+    } else {
+      alert("Faltou preencher a cidade ou a data de assinatura!")
+      return;
+    }
     
     // Para cada [data-input] que começar com CPF_ e ser seguido de 1 número, cria um item no array como prop_ e o número
     formData.toSorted((a, b) => a[0].localeCompare(b[0])).filter(f => f[0].match(/CPF_\d/g)).forEach((prop, index) => {
-      if (prop[1]) formData.push([`prop_${index + 1}`, 'X'])
+      if (prop[1]) {
+        if (verificarCPF(prop[1])) formData.push([`prop_${index + 1}`, 'X'])
+        else {
+          alert("Um ou mais CPFs estão inválidos!")
+          return false
+        }
+      }
     })
     
     formData.forEach(i => {
       const sxs = document.querySelector(`sxs[refer="${i[0]}"]`)
       if (sxs) sxs.textContent = replace(refsAndSpaces.find(r => r[0] === i[0])[1], i[1], ' ')
     })
+    
+    setTimeout(() => {
+      document.querySelector('.btn-impressao').click();
+    }, 500);
   }
   
   function attributeActions() {
@@ -117,7 +133,10 @@ import content from "./modulos/content.js"
         
         case 'formulario-editar-informacoes':
           $(acao).on('submit', (event) => {
+            console.log(new FormData(event.target));
             event.preventDefault();
+            return
+            
             send(event.target);
             acao.closest('dialog').close();
           });
@@ -130,8 +149,8 @@ import content from "./modulos/content.js"
     });
   }
   
-  function attributeMask(param, input_atribuicao) {
-    if (isEmpty(param) && isEmpty(input_atribuicao)) {
+  function attributeMask(param, input) {
+    if (isEmpty(param) && isEmpty(input)) {
       document.querySelectorAll('[data-mascara]').forEach((input) => {
         switch (input.dataset.mascara.trim().toLowerCase()) {
           case 'cpf':
@@ -172,23 +191,23 @@ import content from "./modulos/content.js"
     } else {
       switch (param.toLowerCase().trim()) {
         case 'agencia':
-          $(input_atribuicao).mask('0000', {reverse: true});
+          $(input).mask('0000', {reverse: true});
           break;
         
         case 'operacao':
-          $(input_atribuicao).mask('0000', {reverse: true});
+          $(input).mask('0000', {reverse: true});
           break;
         
         case 'cpf':
-          $(input_atribuicao).mask('000.000.000-00', {reverse: true});
+          $(input).mask('000.000.000-00', {reverse: true});
           break;
         
         case 'numero-contrato':
-          $(input_atribuicao).mask('0.0000.0000000-0', {reverse: true});
+          $(input).mask('0.0000.0000000-0', {reverse: true});
           break;
         
         case 'conta':
-          $(input_atribuicao).mask('000000000000-0', {reverse: true});
+          $(input).mask('000000000000-0', {reverse: true});
           break;
       }
     }
@@ -304,6 +323,11 @@ import content from "./modulos/content.js"
     $('#controle').show();
   };
   
+  $('.btn-impressao').on('click', (event) => {
+    event.preventDefault();
+    window.print();
+  });
+  
   if (window.matchMedia) {
     const mediaQueryList = window.matchMedia('print');
     mediaQueryList.addListener((mql) => {
@@ -318,11 +342,6 @@ import content from "./modulos/content.js"
   window.onbeforeprint = beforePrint();
   window.onafterprint = afterPrint();
   
-  $('.btn-impressao').on('click', (event) => {
-    event.preventDefault();
-    window.print();
-  });
-  
   // Ativar modal editar informações
   document.addEventListener('keyup', (evento) => {
     if (!isEmpty(evento.keyCode)) {
@@ -332,23 +351,5 @@ import content from "./modulos/content.js"
     }
   });
   
-  // Preenche campos para testar
-  if (MODE === 0) {
-    const testValues = {
-      "CPF_1": "123.456.789-09",
-      "CPF_2": "123.456.789-09",
-      "CPF_3": "123.456.789-09",
-      "CPF_4": "123.456.789-09",
-      "n_contrato": "12345678909123",
-      "cc_agencia": "1700",
-      "cc_operacao": "3701",
-      "cc_numero": "0005500000001",
-      "cidade": "BELO HORIZONTE",
-      "data_assinatura": "2025-03-01Z00:00:00"
-    }
-    
-    for (let id in testValues) {
-      document.getElementById(id).value = testValues[id];
-    }
-  }
+  console.log(`Mode: ${MODE === 1 ? "Production" : "Development"}`, `Origin: ${window.location.origin}`, `Started: ${new Date()}`)
 })();

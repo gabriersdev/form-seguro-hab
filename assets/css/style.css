@@ -18,6 +18,7 @@ html {
 
 body {
   font-family: 'Calibri', sans-serif !important;
+  font-size: 1.2rem;
 }
 
 .swal2-popup {
@@ -112,8 +113,11 @@ textarea::placeholder {
   border: 1px solid rgba(0, 0, 0, 0.1);
   color: rgba(0, 0, 0, 0.75);
   border-radius: 5px;
-  margin-bottom: 0.5rem;
-  font-size: 15.5px;
+  margin: 0.5rem 0;
+
+  * {
+    text-wrap: balance;
+  }
 
   &.alert-warning {
     background-color: #FFE10050;
