@@ -1,9 +1,11 @@
 import {
-  isEmpty, numero_e_digito, verificarCPF, zeroEsquerda,
+  isEmpty, verificarCPF, zeroEsquerda,
 } from './modulos/utilitarios.js';
 import content from "./modulos/content.js"
 
 (() => {
+  const MODE = 1
+  
   try {
     document.querySelector('#page-container').innerHTML += content
   } catch (e) {
@@ -28,7 +30,7 @@ import content from "./modulos/content.js"
     console.log('Um erro ocorreu. Erro: %s', error);
   }
   
-  const replice = (quant, string, add) => {
+  const replace = (quant, string, add) => {
     let strReturn = String(string);
     if (typeof string === 'string' && quant > string.length) {
       for (let i = string.length; i < quant; i += 1) {
@@ -39,48 +41,52 @@ import content from "./modulos/content.js"
     return string;
   };
   
-  function atribuirLinks() {
-    const linkElementos = document.querySelectorAll('[data-link]');
-    
-    linkElementos.forEach((link) => {
-      switch (link.dataset.link.toLowerCase().trim()) {
-        case 'github-dev':
-          link.href = 'https://github.com/gabriersdev';
-          break;
-        
-        case 'github-projeto':
-          link.href = 'https://github.com/gabriersdev/form-seguro-hab';
-          break;
-      }
-      
-      link.setAttribute('rel', 'noopener noreferrer');
-    });
-  }
+  const refsAndSpaces = Array.from(document.querySelectorAll('sxs[refer]')).map(e => [e.getAttribute('refer'), e.textContent.match(/\s/g).length || 10]);
   
-  function exibirModalEditarInformacoes() {
+  function showModalEditInfos() {
     document.querySelector('#modal-editar-informacoes').showModal();
     setTimeout(() => {
       document.querySelector('#modal-editar-informacoes').querySelectorAll('input')[0].focus();
     }, 0);
   }
   
-  // TODO - refazer com os campos do formulário de seguro
   function send(form) {
-    const inputs = ['cc_agencia', 'cc_numero', 'cc_operacao', 'n_contrato', 'CPF_1', 'CPF_2', 'CPF_3', 'CPF_4'];
-    // TODO - dar o tratamento e fazer o preenchimento dos dados
-    console.log(form)
-    
+    const inputs = Array.from(document.querySelectorAll('input')).map(e => e.dataset.input);
     const formData = Array.from(inputs.map(i => [i, form.querySelector(`[data-input="${i}"]`).value]))
+    
+    // Adiciona o numero da operacao ao numero da conta, depois remove o cc_operacao do array
+    const cOperation = formData.find(f => f[0] === "cc_operacao");
+    const cNumber = formData.find(f => f[0] === "cc_numero")
+    
+    if (cOperation && cNumber) {
+      cNumber[1] = `${cOperation[1]}.${cNumber[1]}`;
+      formData.splice(formData.indexOf(cOperation), 1);
+    } else alert("Faltou preencher o número ou a operação da conta!")
+    
+    // Cria o item date_full e remove data_assinatura e cidade
+    const city = formData.find(f => f[0] === "cidade");
+    const signDate = formData.find(f => f[0] === "data_assinatura");
+    
+    if (city && signDate) {
+      const date = new Date(`${signDate[1]}T00:00:00Z`)
+      formData.push(["date_full", `${city[1]}, ${('0' + date.getDay()).slice(-2)} de ${date.toLocaleDateString("pt-BR", {
+        month: "long",
+        year: "numeric"
+      })}`])
+    } else alert("Faltou preencher a cidade ou a data de assinatura!")
+    
+    // Para cada [data-input] que começar com CPF_ e ser seguido de 1 número, cria um item no array como prop_ e o número
+    formData.toSorted((a, b) => a[0].localeCompare(b[0])).filter(f => f[0].match(/CPF_\d/g)).forEach((prop, index) => {
+      if (prop[1]) formData.push([`prop_${index + 1}`, 'X'])
+    })
     
     formData.forEach(i => {
       const sxs = document.querySelector(`sxs[refer="${i[0]}"]`)
-      if (sxs) sxs.textContent = i[1]
-      else console.log(i[0])
+      if (sxs) sxs.textContent = replace(refsAndSpaces.find(r => r[0] === i[0])[1], i[1], ' ')
     })
-    
   }
   
-  function atribuirAcoes() {
+  function attributeActions() {
     const acoes = document.querySelectorAll('[data-action]');
     
     acoes.forEach((acao) => {
@@ -124,7 +130,7 @@ import content from "./modulos/content.js"
     });
   }
   
-  function atribuirMascaras(param, input_atribuicao) {
+  function attributeMask(param, input_atribuicao) {
     if (isEmpty(param) && isEmpty(input_atribuicao)) {
       document.querySelectorAll('[data-mascara]').forEach((input) => {
         switch (input.dataset.mascara.trim().toLowerCase()) {
@@ -188,11 +194,85 @@ import content from "./modulos/content.js"
     }
   }
   
+  const verifyValuesInParams = () => {
+    try {
+      const url = new URLSearchParams(window.location.search);
+      const paramsInsert = Array.from(document.querySelectorAll('sxs[refer]')).map((sxs) => sxs.getAttribute('refer'));
+      const manipulateParams = paramsInsert;
+      
+      let urlKeys = []
+      
+      for (let u of url.entries()) {
+        urlKeys.push(u[0])
+      }
+      
+      if (!urlKeys.find(k => paramsInsert.map(p => p.toLowerCase()).includes(k.toLowerCase()))) return;
+      
+      if (!isEmpty(paramsInsert) && url.size > 0) {
+        paramsInsert.forEach((param) => {
+          if (url.has(param) && !isEmpty(url.get(param))) {
+            const element = document.querySelector(`[data-input=${param}]`);
+            const {type} = element;
+            
+            switch (type) {
+              case 'text':
+                if (manipulateParams.includes(param)) {
+                  switch (param) {
+                    case 'CPF_1':
+                    case 'CPF_2':
+                    case 'CPF_3':
+                    case 'CPF_4':
+                      element.value = url.get(param).replace(/\D/g, '').substring(0, 11) || '';
+                      attributeMask('cpf', element);
+                      if (verificarCPF(element.value)) $(element.closest('.area-validation-CPF').querySelector('.icon-invalid-CPF')).fadeOut(500);
+                      else $(element.closest('.area-validation-CPF').querySelector('.icon-invalid-CPF')).fadeIn(500);
+                      break;
+                    
+                    case 'n_contrato':
+                      element.value = url.get(param).replace(/\D/g, '').substring(0, 16) || '';
+                      attributeMask('numero-contrato', element);
+                      break;
+                    
+                    case 'cc_numero':
+                      const valor = url.get(param).replace(/\D/g, '') || '';
+                      element.value = (valor);
+                      attributeMask('conta', element);
+                      if (element.dataset.input === 'cc_numero') console.log('cc_numero', element);
+                      break;
+                    
+                    case 'cc_agencia':
+                      element.value = (url.get(param).replace(/\D/, '') || '').substring(0, 4);
+                      attributeMask('agencia', element);
+                      break;
+                  }
+                } else element.value = url.get(param).replaceAll('-', ' ');
+                break;
+              
+              case 'checkbox':
+              case 'radio':
+                element.checked = (url.get(param) === 'true');
+                break;
+            }
+          }
+        });
+        
+        send(document.querySelector("form[data-action='formulario-editar-informacoes']"));
+        
+        // Clicando no botão de impressão
+        setTimeout(() => {
+          document.querySelector('.btn-impressao').click();
+        }, 500);
+      }
+    } catch (error) {
+      console.log('Ocorreu um erro ao tentar recuperar os dados da URL. Erro: %s', error);
+    }
+  }
+  
   window.addEventListener('load', () => {
     $('.overlay').hide();
-    atribuirLinks();
-    atribuirAcoes();
-    atribuirMascaras();
+    attributeActions();
+    attributeMask();
+    verifyValuesInParams();
     
     $('input').each((index, input) => {
       input.setAttribute('autocomplete', 'off');
@@ -247,115 +327,28 @@ import content from "./modulos/content.js"
   document.addEventListener('keyup', (evento) => {
     if (!isEmpty(evento.keyCode)) {
       if (evento.keyCode === 45) {
-        exibirModalEditarInformacoes();
+        showModalEditInfos();
       }
     }
   });
-})();
-
-const refsAndSpaces = Array.from(document.querySelectorAll('sxs[refer]')).map(e => [e.getAttribute('refer'), e.textContent.match(/\s/g).length]);
-
-console.log(refsAndSpaces);
-
-const inputsFormModal = Array.from(document.querySelectorAll('dialog input')).map(e => e.id);
-console.log(inputsFormModal);
-
-const testValues = {
-  "CPF_1": "123.456.789-09",
-  "CPF_2": "123.456.789",
-  "CPF_3": "123.456.789",
-  "CPF_4": "123.456.789",
-  "n_contrato": "12345678909123",
-  "cc_agencia": "1700",
-  "cc_operacao": "3701",
-  "cc_numero": "0005500000001",
-  "cidade": "BELO HORIZONTE",
-  "data_assinatura": "2025-03-01Z00:00:00"
-}
-
-for (let id in testValues) {
-  document.getElementById(id).value = testValues[id];
-}
-
-const verifyValuesInParams = () => {
-  try {
-    const url = new URLSearchParams(new URL(window.location).search);
-    const parametros_insercao = [];
-    
-    document.querySelectorAll('sxs[refer]').forEach((sxs) => {
-      parametros_insercao.push(sxs.getAttribute('refer'));
-    });
-    
-    if (!isEmpty(parametros_insercao) && url.size > 0) {
-      // Inclusão de parâmetros como forma de substituição de chaves para tratamento
-      if (url.has('conta_comprador_numero')) url.set('cc_numero', url.get('conta_comprador_numero'));
-      if (url.has('conta_comprador_agencia')) url.set('cc_agencia', url.get('conta_comprador_agencia'));
-      if (url.has('conta_comprador_operacao')) url.set('cc_operacao', url.get('conta_comprador_operacao'));
-      
-      parametros_insercao.forEach((parametro) => {
-        if (url.has(parametro) && !isEmpty(url.get(parametro))) {
-          const elemento = document.querySelector(`[data-input=${parametro}]`);
-          const {type} = elemento;
-          
-          const parametros_para_tratar = ['CPF_1', 'CPF_2', 'CPF_3', 'CPF_4', 'n_contrato', 'cc_agencia', 'cc_operacao', 'cc_numero', 'cp_agencia', 'cp_operacao', 'cp_numero'];
-          
-          switch (type) {
-            case 'text':
-              if (parametros_para_tratar.includes(parametro)) {
-                switch (parametro) {
-                  case 'CPF_1':
-                  case 'CPF_2':
-                  case 'CPF_3':
-                  case 'CPF_4':
-                    elemento.value = url.get(parametro).replace(/\D/g, '').substring(0, 11) || '';
-                    atribuirMascaras('cpf', elemento);
-                    if (verificarCPF(elemento.value)) {
-                      $(elemento.closest('.area-validation-CPF').querySelector('.icon-invalid-CPF')).fadeOut(500);
-                    } else {
-                      $(elemento.closest('.area-validation-CPF').querySelector('.icon-invalid-CPF')).fadeIn(500);
-                    }
-                    break;
-                  
-                  case 'n_contrato':
-                    elemento.value = url.get(parametro).replace(/\D/g, '').substring(0, 16) || '';
-                    atribuirMascaras('numero-contrato', elemento);
-                    break;
-                  
-                  case 'cc_numero':
-                    const valor = url.get(parametro).replace(/\D/g, '') || '';
-                    elemento.value = (valor);
-                    atribuirMascaras('conta', elemento);
-                    if (elemento.dataset.input === 'cc_numero') {
-                      console.log('cc_numero', elemento);
-                    }
-                    break;
-                  
-                  case 'cc_agencia':
-                    elemento.value = (url.get(parametro).replace(/\D/, '') || '').substring(0, 4);
-                    atribuirMascaras('agencia', elemento);
-                    break;
-                }
-              } else {
-                elemento.value = url.get(parametro).replaceAll('-', ' ');
-              }
-              break;
-            
-            case 'checkbox':
-            case 'radio':
-              elemento.checked = (url.get(parametro) === 'true');
-              break;
-          }
-        }
-      });
-      
-      // TODO - enviarFormulario();
-      
-      // Clicando no botão de impressão
-      setTimeout(() => {
-        document.querySelector('.btn-impressao').click();
-      }, 500);
+  
+  // Preenche campos para testar
+  if (MODE === 0) {
+    const testValues = {
+      "CPF_1": "123.456.789-09",
+      "CPF_2": "123.456.789-09",
+      "CPF_3": "123.456.789-09",
+      "CPF_4": "123.456.789-09",
+      "n_contrato": "12345678909123",
+      "cc_agencia": "1700",
+      "cc_operacao": "3701",
+      "cc_numero": "0005500000001",
+      "cidade": "BELO HORIZONTE",
+      "data_assinatura": "2025-03-01Z00:00:00"
     }
-  } catch (error) {
-    console.log('Ocorreu um erro ao tentar recuperar os dados da URL. Erro: %s', error);
+    
+    for (let id in testValues) {
+      document.getElementById(id).value = testValues[id];
+    }
   }
-}
+})();

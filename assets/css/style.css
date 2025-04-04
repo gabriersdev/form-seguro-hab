@@ -132,4 +132,5 @@ textarea::placeholder {
 
 sxs {
   font-family: 'Calibri', sans-serif !important;
+  text-transform: uppercase !important;
 }
