@@ -48,6 +48,7 @@ import content from "./modulos/content.js"
   function send(form) {
     const inputs = Array.from(document.querySelectorAll('input')).map(e => e.dataset.input);
     const formData = Array.from(inputs.map(i => [i, form.querySelector(`[data-input="${i}"]`).value]))
+    let itsAllOk = true
     
     // Adiciona o numero da operacao ao numero da conta, depois remove o cc_operacao do array
     const cOperation = formData.find(f => f[0] === "cc_operacao");
@@ -58,11 +59,13 @@ import content from "./modulos/content.js"
       formData.splice(formData.indexOf(cOperation), 1);
     } else {
       alert("Faltou preencher o número ou a operação da conta!")
+      itsAllOk = false;
       return;
     }
     
     if (!formData.find(f => f[0] === "n_contrato")[1]) {
       alert("Número do contrato não foi preenchido!")
+      itsAllOk = false;
       return;
     }
     
@@ -78,6 +81,7 @@ import content from "./modulos/content.js"
       })}`])
     } else {
       alert("Faltou preencher a cidade ou a data de assinatura!")
+      itsAllOk = false;
       return;
     }
     
@@ -87,19 +91,25 @@ import content from "./modulos/content.js"
         if (verificarCPF(prop[1])) formData.push([`prop_${index + 1}`, 'X'])
         else {
           alert("Um ou mais CPFs estão inválidos!")
+          itsAllOk = false;
           return false
         }
       }
     })
     
-    formData.forEach(i => {
-      const sxs = document.querySelector(`sxs[refer="${i[0]}"]`)
-      if (sxs) sxs.textContent = replace(refsAndSpaces.find(r => r[0] === i[0])[1], i[1], ' ')
-    })
-    
-    setTimeout(() => {
-      document.querySelector('.btn-impressao').click();
-    }, 500);
+    if (itsAllOk) {
+      formData.forEach(i => {
+        const sxs = document.querySelector(`sxs[refer="${i[0]}"]`)
+        if (sxs) sxs.textContent = replace(refsAndSpaces.find(r => r[0] === i[0])[1], i[1], ' ')
+      })
+      
+      form.closest('dialog').close();
+      
+      setTimeout(() => {
+        document.querySelector('.btn-impressao').click();
+      }, 500);
+      
+    }
   }
   
   function attributeActions() {
@@ -135,7 +145,6 @@ import content from "./modulos/content.js"
           $(acao).on('submit', (event) => {
             event.preventDefault();
             send(event.target);
-            acao.closest('dialog').close();
           });
           break;
         
