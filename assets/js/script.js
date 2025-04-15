@@ -94,6 +94,8 @@ import content from "./modulos/content.js"
           itsAllOk = false;
           return false
         }
+      } else {
+        formData.push([`prop_${index + 1}`, '  '])
       }
     })
     
