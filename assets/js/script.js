@@ -74,8 +74,8 @@ import content from "./modulos/content.js"
     const signDate = formData.find(f => f[0] === "data_assinatura");
     
     if (city[1] && signDate[1]) {
-      const date = new Date(`${signDate[1]}T00:00:00Z`)
-      formData.push(["date_full", `${city[1]}, ${('0' + date.getDay()).slice(-2)} de ${date.toLocaleDateString("pt-BR", {
+      const date = new Date(`${signDate[1]}T00:00:00-03:00`)
+      formData.push(["date_full", `${city[1]}, ${('0' + date.getDate()).slice(-2)} de ${date.toLocaleDateString("pt-BR", {
         month: "long",
         year: "numeric"
       })}`])
@@ -360,4 +360,18 @@ import content from "./modulos/content.js"
   });
   
   console.log(`Mode: ${MODE === 1 ? "Production" : "Development"}`, `Origin: ${window.location.origin}`, `Started: ${new Date()}`)
+  
+  if (MODE !== 1) {
+    document.querySelectorAll('[data-input]').forEach(input => {
+      const values = [
+        ["", ""]
+      ];
+      
+      //   TODO - preencher os inputs com valores para testá-los
+      [...Array.from(document.querySelectorAll("[data-input]"))].forEach((input) => {
+      
+      })
+    })
+  }
+  
 })();
