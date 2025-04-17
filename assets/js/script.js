@@ -53,6 +53,7 @@ import content from "./modulos/content.js"
     // Adiciona o numero da operacao ao numero da conta, depois remove o cc_operacao do array
     const cOperation = formData.find(f => f[0] === "cc_operacao");
     const cNumber = formData.find(f => f[0] === "cc_numero")
+    const nContract = formData.find(f => f[0] === "n_contrato")
     
     if (cOperation[1] && cNumber[1]) {
       cNumber[1] = `${cOperation[1]}.${cNumber[1]}`;
@@ -63,8 +64,18 @@ import content from "./modulos/content.js"
       return;
     }
     
-    if (!formData.find(f => f[0] === "n_contrato")[1]) {
-      alert("Número do contrato não foi preenchido!")
+    if (!nContract[1]) {
+      alert("O número do contrato não foi preenchido!")
+      itsAllOk = false;
+      return;
+    } else if (nContract[1].length !== 16) {
+      alert("O número do contrato deve ter 16 caracteres!")
+      itsAllOk = false;
+      return;
+    }
+    
+    if (cNumber[1].length !== 14) {
+      alert("O número da conta deve ter 14 caracteres!")
       itsAllOk = false;
       return;
     }

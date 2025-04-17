@@ -2134,7 +2134,7 @@
 
         <div class="form-group">
           <label for="n_contrato">Nº do contrato</label>
-          <input type="text" id="n_contrato" data-input="n_contrato" size="18" data-mascara="numero-contrato" placeholder="0.0000.0000.000-0" maxlength="18" required>
+          <input type="text" id="n_contrato" data-input="n_contrato" size="18" data-mascara="numero-contrato" placeholder="0.0000.0000000-0" minlength="16" maxlength="16" required>
         </div>
       </div>
 
@@ -2143,7 +2143,7 @@
           <label for="cc_agencia">Nº da conta para débito</label>
           <input type="text" id="cc_agencia" data-input="cc_agencia" placeholder="Agência" size="4" data-mascara="agencia" maxlength="4"  autocomplete="off" value="2187" required>
           <input type="text" id="cc_operacao" data-input="cc_operacao" placeholder="Operação" size="5" data-mascara="operacao" maxlength="4" value="3701" autocomplete="off" required>
-          <input type="text" id="cc_numero" data-input="cc_numero" placeholder="Número" size="14" data-mascara="conta" maxlength="14"  autocomplete="off" required>
+          <input type="text" id="cc_numero" data-input="cc_numero" placeholder="Número" size="14" data-mascara="conta" maxlength="14" minlength="14" autocomplete="off" required>
         </div>
       </div>
 
