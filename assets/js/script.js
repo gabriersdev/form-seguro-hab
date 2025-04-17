@@ -55,6 +55,12 @@ import content from "./modulos/content.js"
     const cNumber = formData.find(f => f[0] === "cc_numero")
     const nContract = formData.find(f => f[0] === "n_contrato")
     
+    if (cNumber[1].length !== 14) {
+      alert("O número da conta deve ter 14 caracteres! Atualmente tem " + cNumber[1].length + " dígitos");
+      itsAllOk = false;
+      return;
+    }
+    
     if (cOperation[1] && cNumber[1]) {
       cNumber[1] = `${cOperation[1]}.${cNumber[1]}`;
       formData.splice(formData.indexOf(cOperation), 1);
@@ -70,12 +76,6 @@ import content from "./modulos/content.js"
       return;
     } else if (nContract[1].length !== 16) {
       alert("O número do contrato deve ter 16 caracteres!")
-      itsAllOk = false;
-      return;
-    }
-    
-    if (cNumber[1].length !== 14) {
-      alert("O número da conta deve ter 14 caracteres!")
       itsAllOk = false;
       return;
     }
