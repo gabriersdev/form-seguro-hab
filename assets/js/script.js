@@ -46,7 +46,11 @@ import content from "./modulos/content.js"
   }
   
   function send(form) {
-    const inputs = Array.from(document.querySelectorAll('input')).map(e => e.dataset.input);
+    form = document.querySelector(`form[data-action="${form.dataset.action}"]`)
+    
+    let inputs = Array.from(document.querySelectorAll('input')).map(e => e.dataset.input);
+    inputs = inputs.filter(e => e)
+    
     const formData = Array.from(inputs.map(i => [i, form.querySelector(`[data-input="${i}"]`).value]))
     let itsAllOk = true
     
@@ -160,6 +164,20 @@ import content from "./modulos/content.js"
             send(event.target);
           });
           break;
+        
+        case 'carregar-com-espelho':
+          $(acao).on('click', () => {
+            $('#pdf-upload').click();
+            
+            // if (true) alert("O conteúdo foi recuperado com sucesso! Confira se as informações estão corretas e de acordo com o que você precisa")
+            // else alert("Não obtivemos nenhum dado do arquivo")
+          })
+          
+          // Clica em um input file e o usuário faz upload do arquivo
+          // Verifica se o arquivo é de fato um PDF e transforma em base64 para a lib conseguir ler
+          // Envia o conteudo do PDF para a lib e retorna os dados que foram obtidos via regex
+          // Sanitiza e insere os dados no formulario - usa a funcao send
+          break
         
         default:
           console.warn('A ação não foi implementada.');
@@ -332,6 +350,204 @@ import content from "./modulos/content.js"
     } catch (error) {
       console.log('Um erro ocorreu. Erro: %s', error);
     }
+    
+    const input = document.getElementById('pdf-upload');
+    
+    input.addEventListener('change', async (event) => {
+      const file = event.target.files[0];
+      if (!file) return;
+      
+      if (file.type !== "application/pdf") {
+        alert("O arquivo não é um PDF. Selecione um PDF e tente novamente")
+        return
+      }
+      
+      const reader = new FileReader();
+      reader.onload = async function () {
+        const typedarray = new Uint8Array(this.result);
+        
+        const loadingTask = pdfjsLib.getDocument({data: typedarray});
+        const pdf = await loadingTask.promise;
+        let fullText = '';
+        
+        for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+          const page = await pdf.getPage(pageNum);
+          const content = await page.getTextContent();
+          
+          const pageText = content.items.map(item => item.str).join(' ');
+          fullText += pageText
+        }
+        
+        /**
+         * Get the context using regex
+         *
+         * @param {String} text The text to be searched
+         * @param {RegExp} regex The regex to be used
+         * @param {RegExp} regexSanit The regex to be sanitized
+         * @param {Number|Null} index The index of the array
+         * @returns {Array} The content between the two strings or an empty array
+         **/
+        const getContextUsingRegex = (text, regex, regexSanit, index = null) => {
+          // Verificação e tratamento para textos obtidos no Firefox
+          
+          // TODO - Implementar verificação se algo foi obtido. Falha ocorre para arquivos de espelhos obtidos do Firefox e que podem ser lidos em outro navegador. ## Solução encontrada aumentando o tempo de espera para carregamento do PDF com a complexidade do regex
+          // Percorre os textos (do regex para captura e do regex para sanitização) e adiciona \s* após cada caractere exceto os caracteres especiais
+          try {
+            [regex, regexSanit].forEach((r, index) => {
+              let new_regex = r.toString().replace('/', '').replace(/\/gi/g, '');
+              new_regex = new_regex.split('').map((e, i) => {
+                const this_ = new_regex.split('');
+                if (e === '\\' || e === '/') return e;
+                if (['w', 's', 'i', 'g', 'b', 'd', 'r'].includes(e.toLowerCase()) && this_[i - 1] === '\\') return e;
+                if ([','].includes(e) && this_[i + 1] === '}') return e;
+                if (e.match(/\d{1,}/g) !== null && this_[i - 1] === '{' && this_[i + 1] === ',') return e;
+                if (['*', '?', '+', ']', '[', '(', ')', '{', '}', '^'].includes(e)) return e;
+                if (e.match(/\d/g) !== null && this_[i - 1] === '{' && this_[i + 1] === '}') return e;
+                if (['*', '?', '^', '+'].includes(this_[i + 1])) return e;
+                return e + '\\s*';
+              }).join('');
+              index === 0 ? regex = new RegExp(new_regex, 'gi') : regexSanit = new RegExp(new_regex, 'gi');
+            });
+          } catch (error) {
+            console.groupCollapsed(`Erro: ${error.message}`);
+            console.info(`${error.message}`);
+            console.info(error.stack);
+            console.groupEnd();
+            return null;
+          }
+          
+          try {
+            if (!new RegExp(regex).test(text)) return null;
+            if (!index && index !== 0) return text.match(new RegExp(regex)).map((p) => p.replace(new RegExp(regexSanit), '').trim());
+            else return text.match(new RegExp(regex)).map((p) => p.replace(new RegExp(regexSanit), '').trim())[index];
+          } catch (e) {
+            return null;
+          }
+        }
+        
+        /**
+         * Get the account number
+         *
+         * @param {Array} ret The text to be searched
+         * @param {Number} index The index of the array
+         * @returns {string|null} The content between the two strings or an empty array
+         **/
+        const getAccount = (ret, index) => {
+          try {
+            if (ret) {
+              const account = Array.isArray(ret) ? ret[0].split('-') : ret.split('-');
+              return account[index];
+            } else {
+              return null;
+            }
+          } catch (e) {
+            return '';
+          }
+        }
+        
+        /**
+         * Sanitize the regex return, replacing values
+         *
+         * @param str
+         * @param regex
+         * @param action
+         * @param replaceValue
+         * @returns {*|null}
+         */
+        const sanitizeRegexReturn = (str, regex, action, replaceValue) => {
+          try {
+            if (action === 'replace') return str.replace(regex, replaceValue);
+            return str.match(regex)[0];
+          } catch (e) {
+            return null;
+          }
+        }
+        
+        const regex = {
+          cpf: /\d{3}\.\d{3}\.\d{3}-\d{2}/g,
+          // Dados das contas
+          // [números e traços]
+          account: /\d{4}-\d{3,4}-\d{12}-\d{1}/g,
+          // Outros dados
+          // [números, espaços e letras]
+          general: /[\d\D]+/g,
+        }
+        
+        const regexes = [
+          ["name", "regex", ""]
+        ]
+        
+        // Sanitizando todo o conteúdo obtido do PDF - removendo espaços desnecessários
+        const text = fullText.replace(/\s+,/g, ',').replace(/\s+/g, ' ').trim();
+        
+        // Imprime o texto do PDF no console para auditoria
+        console.groupCollapsed('Texto do PDF - Auditoria' + ' - ' + new Date().toLocaleString());
+        console.log(text);
+        console.groupEnd();
+        
+        // Obtendo os dados do texto do PDF
+        try {
+          const data = {
+            clients: {
+              CPF: {content: getContextUsingRegex(text, /(CPF:)\s\d{3}\.\d{3}\.\d{3}-\d{2}\s(Nome)/gi, /(CPF:)|Nome/gi), ref: ["CPF_1", "CPF_2", "CPF_3", "CPF_4"]}
+            },
+            contract: {content: getContextUsingRegex(text, /(Número Contrato para Administração:)\s\d{1}\.\d{4}\.\d{7}-\d{1}\s*Situação/gi, /(Número Contrato para Administração:)|Situação/gi, 0), ref: "n_contrato"},
+            // Conta para débito das parcelas
+            debit_account: {
+              agency: {content: getAccount(getContextUsingRegex(text, /(Conta para Débito:)\s(\d{4}-\d{3,4}-\d{12}-\d{1})\s(Débito em Conta)/gi, /(Conta para Débito:)|(Débito em Conta)/gi), 0), ref: "cc_agencia"},
+              operation: {content: getAccount(getContextUsingRegex(text, /(Conta para Débito:)\s(\d{4}-\d{3,4}-\d{12}-\d{1})\s(Débito em Conta)/gi, /(Conta para Débito:)|(Débito em Conta)/gi), 1), ref: "cc_operacao"},
+              account_number: {content: getAccount(getContextUsingRegex(text, /(Conta para Débito:)\s(\d{4}-\d{3,4}-\d{12}-\d{1})\s(Débito em Conta)/gi, /(Conta para Débito:)|(Débito em Conta)/gi), 2), ref: "cc_numero"},
+              code: {content: getAccount(getContextUsingRegex(text, /(Conta para Débito:)\s(\d{4}-\d{3,4}-\d{12}-\d{1})\s(Débito em Conta)/gi, /(Conta para Débito:)|(Débito em Conta)/gi), 3), ref: "append_code"},
+            },
+          };
+          
+          // Imprime dados sanitizados no console
+          console.groupCollapsed('Dados obtidos e sanitizados - Auditoria' + ' - ' + new Date().toLocaleString());
+          const consoleReturn = {};
+          for (const [key, value] of Object.entries(data)) {
+            consoleReturn[key] = value;
+          }
+          console.log(consoleReturn)
+          console.groupEnd();
+          
+          Object.entries(data).forEach(([key, value]) => {
+            // Elementos de CPF
+            if (key === "clients" && Object.keys(value)[0] === "CPF") {
+              Object.values(value.CPF.content).forEach((c, i) => c.length === 14 ? $(`[data-input="CPF_${i + 1}"]`).val(c) : "")
+              return true
+            }
+            // Os dados da conta
+            else if (key === "debit_account") {
+              Object.values(value).forEach(obj => {
+                // No caso de digito verificador - code
+                if (obj.ref === "append_code" && obj.content) {
+                  const inputCCNumero = $(`[data-input="cc_numero"]`)
+                  $(inputCCNumero).val(inputCCNumero.value += obj.content)
+                  return true
+                }
+                
+                if (obj.content) $(`[data-input="${obj.ref}"]`).val(obj.content)
+              })
+              return true
+            }
+            if (value.content) $(`[data-input="${value.ref}"]`).val(value.content)
+          })
+          
+          const dialog = document.querySelector('#modal-editar-informacoes')
+          dialog.showModal();
+          const emptyInput = Array.from(dialog.querySelectorAll('input[required]')).find(input => !input.value)
+          if (emptyInput && false) emptyInput.focus()
+          else send($(dialog).find('form')[0])
+        } catch (e) {
+          alert("Ocorreu um erro ao ler o arquivo. Tente novamente. Verifique o console.");
+          // console.info(e.message);
+          console.error(e);
+          return false;
+        }
+      }
+      
+      reader.readAsArrayBuffer(file);
+    });
   });
   
   const beforePrint = () => {
@@ -384,5 +600,4 @@ import content from "./modulos/content.js"
       })
     })
   }
-  
 })();
