@@ -132,14 +132,14 @@ import content from "./modulos/content.js"
   function attributeActions() {
     const acoes = document.querySelectorAll('[data-action]');
     
-    acoes.forEach((acao) => {
-      switch (acao.dataset.action) {
+    acoes.forEach((action) => {
+      switch (action.dataset.action) {
         case 'acao':
           break;
         
         case 'editar':
           try {
-            $(acao).on('click', (event) => {
+            $(action).on('click', (event) => {
               event.preventDefault();
               document.querySelector('#modal-editar-informacoes').showModal();
               setTimeout(() => {
@@ -152,21 +152,21 @@ import content from "./modulos/content.js"
           break;
         
         case 'fechar-modal':
-          $(acao).on('click', (event) => {
+          $(action).on('click', (event) => {
             event.preventDefault();
-            (acao.closest('dialog')).close();
+            (action.closest('dialog')).close();
           });
           break;
         
         case 'formulario-editar-informacoes':
-          $(acao).on('submit', (event) => {
+          $(action).on('submit', (event) => {
             event.preventDefault();
             send(event.target);
           });
           break;
         
         case 'carregar-com-espelho':
-          $(acao).on('click', () => {
+          $(action).on('click', () => {
             $('#pdf-upload').click();
             
             // if (true) alert("O conteúdo foi recuperado com sucesso! Confira se as informações estão corretas e de acordo com o que você precisa")
@@ -177,6 +177,19 @@ import content from "./modulos/content.js"
           // Verifica se o arquivo é de fato um PDF e transforma em base64 para a lib conseguir ler
           // Envia o conteudo do PDF para a lib e retorna os dados que foram obtidos via regex
           // Sanitiza e insere os dados no formulario - usa a funcao send
+          break
+        
+        case 'access-clipboard':
+          // Botão que busca da área de transferência
+          $(action).on('click', async function () {
+            try {
+              const text = await navigator.clipboard.readText();
+              writeInputs(text);
+            } catch (err) {
+              console.info('Erro ao acessar a área de transferência.');
+              console.info(err);
+            }
+          });
           break
         
         default:
@@ -323,6 +336,24 @@ import content from "./modulos/content.js"
       console.log('Ocorreu um erro ao tentar recuperar os dados da URL. Erro: %s', error);
     }
   }
+  
+  const writeInputs = (value) => {
+    const parts = value.trim().split('.');
+    
+    if (parts.length === 3) {
+      $('#cc_agencia').val(parts[0]);
+      $('#cc_operacao').val(parts[1]);
+      $('#cc_numero').val(parts[2]);
+    } else alert('Formato inválido. Use o padrão: 0000.0000.000000000000-0');
+  }
+  
+  const beforePrint = () => {
+    $('#controle').hide();
+  };
+  
+  const afterPrint = () => {
+    $('#controle').show();
+  };
   
   window.addEventListener('load', () => {
     $('.overlay').hide();
@@ -548,19 +579,18 @@ import content from "./modulos/content.js"
       
       reader.readAsArrayBuffer(file);
     });
-  });
-  
-  const beforePrint = () => {
-    $('#controle').hide();
-  };
-  
-  const afterPrint = () => {
-    $('#controle').show();
-  };
-  
-  $('.btn-impressao').on('click', (event) => {
-    event.preventDefault();
-    window.print();
+    
+    // Monitora os inputs para quando haver uma colagem de conteudo, separar e adicionar os valores aos seus respectivos campos
+    $('#cc_agencia, #cc_operacao, #cc_numerocc_numero').on('paste', (e) => {
+      e.preventDefault();
+      const pasteText = (e.originalEvent || e).clipboardData.getData('text/plain');
+      writeInputs(pasteText);
+    });
+    
+    $('.btn-impressao').on('click', (event) => {
+      event.preventDefault();
+      window.print();
+    });
   });
   
   if (window.matchMedia) {
@@ -574,8 +604,8 @@ import content from "./modulos/content.js"
     });
   }
   
-  window.onbeforeprint = beforePrint();
-  window.onafterprint = afterPrint();
+  window.onbeforeprint = beforePrint;
+  window.onafterprint = afterPrint;
   
   // Ativar modal editar informações
   document.addEventListener('keyup', (evento) => {

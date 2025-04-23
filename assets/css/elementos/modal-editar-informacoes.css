@@ -67,23 +67,21 @@
   border: initial;
 }
 
-button[type=submit]{
+button[type=submit], .btn-normal{
   width: 100%;
   cursor: pointer;
   outline: none;
   padding: 0.45rem;
-  outline: none !important;
   border: 1px solid #CCC;
   background-color: rgba(0, 0, 0, 0.2);
-  border-radius: 3.5px;
+  border-radius: 4px;
   transition: background ease-in-out 0.3s;
   display: inline;
-  transition: ease-in-out background 300ms;
-}
 
-button[type=submit]:is(:focus, :hover){
-  background-color: rgba(0, 0, 0, 0.25);
-  border-color: rgba(0, 0, 0, 0.1);
+  &:is(:focus, :hover){
+    background-color: rgba(0, 0, 0, 0.25);
+    border-color: rgba(0, 0, 0, 0.1);
+  }
 }
 
 .area-validation-CPF{

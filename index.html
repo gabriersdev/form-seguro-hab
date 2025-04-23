@@ -2091,8 +2091,8 @@
       <input type="file" id="pdf-upload" accept="application/pdf" style="display: none" />
       <button class="btn-controle" data-action="editar">Editar</button>
       <button class="btn-controle" data-action="carregar-com-espelho">Carregar com espelho</button>
+      <button class="btn-impressao"><kbd>CTRL</kbd> + <kbd>P</kbd></button>
     </div>
-    <button class="btn-impressao"><kbd>CTRL</kbd> + <kbd>P</kbd></button>
   </div>
 </div>
 
@@ -2147,8 +2147,11 @@
         <div class="form-group">
           <label for="cc_agencia">Nº da conta para débito</label>
           <input type="text" id="cc_agencia" data-input="cc_agencia" placeholder="Agência" size="4" data-mascara="agencia" maxlength="4" autocomplete="off" value="2187" required>
+          <label for="cc_operacao" style="display: none">Operação</label>
           <input type="text" id="cc_operacao" data-input="cc_operacao" placeholder="Operação" size="5" data-mascara="operacao" maxlength="4" value="3701" autocomplete="off" required>
+          <label for="cc_numero" style="display: none">Número</label>
           <input type="text" id="cc_numero" data-input="cc_numero" placeholder="Número" size="14" data-mascara="conta" minlength="14" maxlength="14" autocomplete="off" required>
+          <button class="btn-normal" type="button" data-action="access-clipboard" style="display: inline; width: min-content">Colar</button>
         </div>
       </div>
 
