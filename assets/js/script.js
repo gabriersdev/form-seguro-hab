@@ -340,7 +340,7 @@ import content from "./modulos/content.js"
   const writeInputs = (value) => {
     const parts = value.trim().split('.');
     
-    if (parts.length === 3) {
+    if (parts.length === 3 && parts.join('').match(/\d/g).join('').length) {
       $('#cc_agencia').val(parts[0]);
       $('#cc_operacao').val(parts[1]);
       $('#cc_numero').val(parts[2]);
