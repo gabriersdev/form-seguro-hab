@@ -338,12 +338,14 @@ import content from "./modulos/content.js"
   }
   
   const writeInputs = (value) => {
-    const parts = value.trim().split('.');
+    let parts = value.trim().split('.');
+    if (parts.length === 1) parts = value.trim().split("-");
+    if (parts.length === 1) parts = value.trim().split(" ");
     
-    if (parts.length === 3 && parts.join('').match(/\d/g).join('').length) {
+    if ((parts.length === 3 || parts.length === 4) && parts.join('').match(/\d/g).length) {
       $('#cc_agencia').val(parts[0]);
       $('#cc_operacao').val(parts[1]);
-      $('#cc_numero').val(parts[2]);
+      $('#cc_numero').val(value.match(/-/g).length > 1 || value.match(/\s/g).length > 1 ? parts[2] + "-" + parts[3] : parts[2]);
     } else alert('Formato inválido. Use o padrão: 0000.0000.000000000000-0');
   }
   
