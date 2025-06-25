@@ -345,7 +345,7 @@ import content from "./modulos/content.js"
     if ((parts.length === 3 || parts.length === 4) && parts.join('').match(/\d/g).length) {
       $('#cc_agencia').val(parts[0]);
       $('#cc_operacao').val(parts[1]);
-      $('#cc_numero').val(value.match(/-/g).length > 1 || value.match(/\s/g).length > 1 ? parts[2] + "-" + parts[3] : parts[2]);
+      $('#cc_numero').val(value.match(/-/g).join("").length > 1 || value.match(/\s/g).join("").length > 1 ? parts[2]?.match(/\d/g).join("") + "-" + parts[3]?.match(/\d/g).join("") || "" : parts[2]?.match(/\d/g).join("") || "");
     } else alert('Formato inválido. Use o padrão: 0000.0000.000000000000-0');
   }
   
