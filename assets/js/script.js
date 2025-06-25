@@ -340,12 +340,14 @@ import content from "./modulos/content.js"
   const writeInputs = (value) => {
     let parts = value.trim().split('.');
     if (parts.length === 1) parts = value.trim().split("-");
-    if (parts.length === 1) parts = value.trim().split(" ");
     
     if ((parts.length === 3 || parts.length === 4) && parts.join('').match(/\d/g).length) {
-      $('#cc_agencia').val(parts[0]);
-      $('#cc_operacao').val(parts[1]);
-      $('#cc_numero').val(value.match(/-/g).join("").length > 1 || value.match(/\s/g).join("").length > 1 ? parts[2]?.match(/\d/g).join("") + "-" + parts[3]?.match(/\d/g).join("") || "" : parts[2]?.match(/\d/g).join("") || "");
+      const part2 = parts[2]?.match(/\d/g)?.join("");
+      const part3 = parts[3]?.match(/\d/g)?.join("");
+      
+      $('#cc_agencia').val(parts[0].substring(0, 4));
+      $('#cc_operacao').val(parts[1].substring(0, 4));
+      $('#cc_numero').val(value?.match(/-/g)?.join("").length > 1 ? part2 + "-" + part3 || "" : (part2.substring(0, part2.length - 1) + "-" + part2.substring(part2.length - 1, part2.length)) || "");
     } else alert('Formato inválido. Use o padrão: 0000.0000.000000000000-0');
   }
   
@@ -619,17 +621,4 @@ import content from "./modulos/content.js"
   });
   
   console.log(`Mode: ${MODE === 1 ? "Production" : "Development"}`, `Origin: ${window.location.origin}`, `Started: ${new Date()}`)
-  
-  if (MODE !== 1) {
-    document.querySelectorAll('[data-input]').forEach(input => {
-      const values = [
-        ["", ""]
-      ];
-      
-      //   TODO - preencher os inputs com valores para testá-los
-      [...Array.from(document.querySelectorAll("[data-input]"))].forEach((input) => {
-      
-      })
-    })
-  }
 })();
