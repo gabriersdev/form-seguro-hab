@@ -337,8 +337,24 @@ import content from "./modulos/content.js"
     }
   }
   
+  const replaceNullForZero = (str, length, cursor) => {
+    let allZeros = "";
+    let result = "";
+    
+    for (let i = 0; i < length; i++) {
+      allZeros += "0"
+    }
+    
+    result = allZeros;
+    if (cursor === "right") result = str + result;
+    else result += str;
+    
+    return result.slice(-length);
+  }
+  
   const writeInputs = (value) => {
     let parts = value.trim().split('.');
+    if (parts.length === 1) parts = value.trim().split(" - ");
     if (parts.length === 1) parts = value.trim().split("-");
     
     if ((parts.length === 3 || parts.length === 4) && parts.join('').match(/\d/g).length) {
@@ -347,7 +363,7 @@ import content from "./modulos/content.js"
       
       $('#cc_agencia').val(parts[0].substring(0, 4));
       $('#cc_operacao').val(parts[1].substring(0, 4));
-      $('#cc_numero').val(value?.match(/-/g)?.join("").length > 1 ? part2 + "-" + part3 || "" : (part2.substring(0, part2.length - 1) + "-" + part2.substring(part2.length - 1, part2.length)) || "");
+      $('#cc_numero').val(value?.match(/-/g)?.join("").length > 1 ? replaceNullForZero(part2.substring(0, part2.length - 1), 12, "left") + "-" + (part3 || part2.substring(part2.length - 1, part2.length)) : (replaceNullForZero(part2.substring(0, part2.length - 1), 12, "left") + "-" + part2.substring(part2.length - 1, part2.length)) || "");
     } else alert('Formato inválido. Use o padrão: 0000.0000.000000000000-0');
   }
   
