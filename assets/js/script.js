@@ -67,7 +67,7 @@ import content from "./modulos/content.js"
     
     if (cOperation[1] && cNumber[1]) {
       cNumber[1] = `${cOperation[1]}.${cNumber[1]}`;
-      formData.splice(formData.indexOf(cOperation), 1);
+      formData.splice(formData.indexOf(cOperation ?? []), 1);
     } else {
       alert("Faltou preencher o número ou a operação da conta!")
       itsAllOk = false;
@@ -339,7 +339,7 @@ import content from "./modulos/content.js"
   
   const replaceNullForZero = (str, length, cursor) => {
     let allZeros = "";
-    let result = "";
+    let result;
     
     for (let i = 0; i < length; i++) {
       allZeros += "0"
@@ -436,7 +436,7 @@ import content from "./modulos/content.js"
          * @param {RegExp} regex The regex to be used
          * @param {RegExp} regexSanit The regex to be sanitized
          * @param {Number|Null} index The index of the array
-         * @returns {Array} The content between the two strings or an empty array
+         * @returns {string|null} The content between the two strings or an empty array
          **/
         const getContextUsingRegex = (text, regex, regexSanit, index = null) => {
           // Verificação e tratamento para textos obtidos no Firefox
@@ -451,7 +451,7 @@ import content from "./modulos/content.js"
                 if (e === '\\' || e === '/') return e;
                 if (['w', 's', 'i', 'g', 'b', 'd', 'r'].includes(e.toLowerCase()) && this_[i - 1] === '\\') return e;
                 if ([','].includes(e) && this_[i + 1] === '}') return e;
-                if (e.match(/\d{1,}/g) !== null && this_[i - 1] === '{' && this_[i + 1] === ',') return e;
+                if (e.match(/\d+/g) !== null && this_[i - 1] === '{' && this_[i + 1] === ',') return e;
                 if (['*', '?', '+', ']', '[', '(', ')', '{', '}', '^'].includes(e)) return e;
                 if (e.match(/\d/g) !== null && this_[i - 1] === '{' && this_[i + 1] === '}') return e;
                 if (['*', '?', '^', '+'].includes(this_[i + 1])) return e;
@@ -514,19 +514,19 @@ import content from "./modulos/content.js"
           }
         }
         
-        const regex = {
-          cpf: /\d{3}\.\d{3}\.\d{3}-\d{2}/g,
-          // Dados das contas
-          // [números e traços]
-          account: /\d{4}-\d{3,4}-\d{12}-\d{1}/g,
-          // Outros dados
-          // [números, espaços e letras]
-          general: /[\d\D]+/g,
-        }
-        
-        const regexes = [
-          ["name", "regex", ""]
-        ]
+        // const regex = {
+        //   cpf: /\d{3}\.\d{3}\.\d{3}-\d{2}/g,
+        //   // Dados das contas
+        //   // [números e traços]
+        //   account: /\d{4}-\d{3,4}-\d{12}-\d/g,
+        //   // Outros dados
+        //   // [números, espaços e letras]
+        //   general: /[\d\D]+/g,
+        // }
+        //
+        // const regexes = [
+        //   ["name", "regex", ""]
+        // ]
         
         // Sanitizando todo o conteúdo obtido do PDF - removendo espaços desnecessários
         const text = fullText.replace(/\s+,/g, ',').replace(/\s+/g, ' ').trim();
@@ -542,13 +542,13 @@ import content from "./modulos/content.js"
             clients: {
               CPF: {content: getContextUsingRegex(text, /(CPF:)\s\d{3}\.\d{3}\.\d{3}-\d{2}\s(Nome)/gi, /(CPF:)|Nome/gi), ref: ["CPF_1", "CPF_2", "CPF_3", "CPF_4"]}
             },
-            contract: {content: getContextUsingRegex(text, /(Número Contrato para Administração:)\s\d{1}\.\d{4}\.\d{7}-\d{1}\s*Situação/gi, /(Número Contrato para Administração:)|Situação/gi, 0), ref: "n_contrato"},
+            contract: {content: getContextUsingRegex(text, /(Número Contrato para Administração:)\s\d\.\d{4}\.\d{7}-\d\s*Situação/gi, /(Número Contrato para Administração:)|Situação/gi, 0), ref: "n_contrato"},
             // Conta para débito das parcelas
             debit_account: {
-              agency: {content: getAccount(getContextUsingRegex(text, /(Conta para Débito:)\s(\d{4}-\d{3,4}-\d{12}-\d{1})\s(Débito em Conta)/gi, /(Conta para Débito:)|(Débito em Conta)/gi), 0), ref: "cc_agencia"},
-              operation: {content: getAccount(getContextUsingRegex(text, /(Conta para Débito:)\s(\d{4}-\d{3,4}-\d{12}-\d{1})\s(Débito em Conta)/gi, /(Conta para Débito:)|(Débito em Conta)/gi), 1), ref: "cc_operacao"},
-              account_number: {content: getAccount(getContextUsingRegex(text, /(Conta para Débito:)\s(\d{4}-\d{3,4}-\d{12}-\d{1})\s(Débito em Conta)/gi, /(Conta para Débito:)|(Débito em Conta)/gi), 2), ref: "cc_numero"},
-              code: {content: getAccount(getContextUsingRegex(text, /(Conta para Débito:)\s(\d{4}-\d{3,4}-\d{12}-\d{1})\s(Débito em Conta)/gi, /(Conta para Débito:)|(Débito em Conta)/gi), 3), ref: "append_code"},
+              agency: {content: getAccount(getContextUsingRegex(text, /(Conta para Débito:)\s(\d{4}-\d{3,4}-\d{12}-\d)\s(Débito em Conta)/gi, /(Conta para Débito:)|(Débito em Conta)/gi), 0), ref: "cc_agencia"},
+              operation: {content: getAccount(getContextUsingRegex(text, /(Conta para Débito:)\s(\d{4}-\d{3,4}-\d{12}-\d)\s(Débito em Conta)/gi, /(Conta para Débito:)|(Débito em Conta)/gi), 1), ref: "cc_operacao"},
+              account_number: {content: getAccount(getContextUsingRegex(text, /(Conta para Débito:)\s(\d{4}-\d{3,4}-\d{12}-\d)\s(Débito em Conta)/gi, /(Conta para Débito:)|(Débito em Conta)/gi), 2), ref: "cc_numero"},
+              code: {content: getAccount(getContextUsingRegex(text, /(Conta para Débito:)\s(\d{4}-\d{3,4}-\d{12}-\d)\s(Débito em Conta)/gi, /(Conta para Débito:)|(Débito em Conta)/gi), 3), ref: "append_code"},
             },
           };
           
@@ -571,13 +571,13 @@ import content from "./modulos/content.js"
             else if (key === "debit_account") {
               Object.values(value).forEach(obj => {
                 // No caso de digito verificador - code
-                if (obj.ref === "append_code" && obj.content) {
+                if (obj?.ref === "append_code" && obj?.content) {
                   const inputCCNumero = $(`[data-input="cc_numero"]`)
                   $(inputCCNumero).val(inputCCNumero.value += obj.content)
                   return true
                 }
                 
-                if (obj.content) $(`[data-input="${obj.ref}"]`).val(obj.content)
+                if (obj?.content) $(`[data-input="${obj.ref}"]`).val(obj.content)
               })
               return true
             }
@@ -615,8 +615,9 @@ import content from "./modulos/content.js"
   
   if (window.matchMedia) {
     const mediaQueryList = window.matchMedia('print');
-    mediaQueryList.addListener((mql) => {
-      if (mql.matches) {
+    
+    mediaQueryList.addEventListener('change', (event) => {
+      if (event.matches) {
         beforePrint();
       } else {
         afterPrint();
