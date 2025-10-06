@@ -116,10 +116,6 @@ textarea::placeholder {
     margin: 0.5rem 0;
     font-size: 13px;
 
-    * {
-        text-wrap: balance;
-    }
-
     &.alert-warning {
         background-color: #FFE10050;
 
