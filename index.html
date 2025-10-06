@@ -2089,7 +2089,7 @@
   <div id="controle">
     <div style="display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 1rem">
       <input type="file" id="pdf-upload" accept="application/pdf" style="display: none" />
-      <button class="btn-controle" data-action="editar">Editar</button>
+      <button class="btn-controle" data-action="editar">Editar <kbd>Insert</kbd></button>
       <button class="btn-controle" data-action="carregar-com-espelho">Carregar com espelho</button>
       <button class="btn-impressao"><kbd>CTRL</kbd> + <kbd>P</kbd></button>
     </div>
@@ -2146,12 +2146,15 @@
       <div class="group">
         <div class="form-group">
           <label for="cc_agencia">Nº da conta para débito</label>
+          <div class="alert alert-info">
+            <p>Para usar o número da conta retirado do SICAQ ou SIOPI, basta colar todo o contéudo no padrão 0000.0000.000000000000-0 ou 0000-0000-000000000000-0, sendo 4 números para agência + separador + 4 números para a operação + separador + número da conta com 12 dígitos + separador + número dígito verificador, no campo "Agência".</p>
+          </div>
           <input type="text" id="cc_agencia" data-input="cc_agencia" placeholder="Agência" size="4" data-mascara="agencia" maxlength="4" autocomplete="off" value="2187" required>
           <label for="cc_operacao" style="display: none">Operação</label>
           <input type="text" id="cc_operacao" data-input="cc_operacao" placeholder="Operação" size="5" data-mascara="operacao" maxlength="4" value="3701" autocomplete="off" required>
           <label for="cc_numero" style="display: none">Número</label>
           <input type="text" id="cc_numero" data-input="cc_numero" placeholder="Número" size="14" data-mascara="conta" minlength="14" maxlength="14" autocomplete="off" required>
-          <button class="btn-normal" type="button" data-action="access-clipboard" style="display: inline; width: min-content">Colar</button>
+          <button class="btn-normal" type="button" data-action="access-clipboard" style="display: inline; width: min-content" tabindex="-1">Colar</button>
         </div>
       </div>
 
@@ -2168,10 +2171,10 @@
       </div>
 
       <div class="alert alert-warning">
-        <p>Informe pelo menos 1 CPF, o número do contrato e os dados da conta bancária, além da cidade e data atual para que o formulário seja gerado.</p>
+        <p>Informe pelo menos um número de CPF, o número do contrato e os dados da conta bancária, além da cidade e data atual para que o formulário seja gerado.</p>
       </div>
 
-      <button type="submit" class="block mt-1">Enviar</button>
+      <button type="submit" class="block mt-1">Enviar <kbd>Enter</kbd></button>
     </form>
   </div>
 </dialog>

@@ -13,128 +13,154 @@
 @import url(./elementos/modal-editar-informacoes.css);
 
 html {
-  scroll-behavior: smooth;
+    scroll-behavior: smooth;
 }
 
 body {
-  font-family: 'Calibri', sans-serif !important;
-  font-size: 1.2rem;
+    font-family: 'Calibri', sans-serif !important;
+    font-size: 1.2rem;
 }
 
 .swal2-popup {
-  font-size: 16px !important;
+    font-size: 16px !important;
 }
 
 input,
 textarea {
-  text-transform: uppercase;
+    text-transform: uppercase;
 }
 
 input::placeholder,
 textarea::placeholder {
-  text-transform: initial;
+    text-transform: initial;
 }
 
 .none {
-  display: none;
+    display: none;
 }
 
 .block {
-  display: block;
+    display: block;
 }
 
 .mt-1 {
-  margin-top: 1rem;
+    margin-top: 1rem;
 }
 
 .mt-2 {
-  margin-top: 2rem;
+    margin-top: 2rem;
 }
 
 .mt-3 {
-  margin-top: 3rem;
+    margin-top: 3rem;
 }
 
 .mb-1 {
-  margin-bottom: 1rem;
+    margin-bottom: 1rem;
 }
 
 .mb-2 {
-  margin-bottom: 2rem;
+    margin-bottom: 2rem;
 }
 
 .mb-3 {
-  margin-bottom: 3rem;
+    margin-bottom: 3rem;
 }
 
 .ml-1 {
-  margin-left: 1rem;
+    margin-left: 1rem;
 }
 
 .ml-2 {
-  margin-left: 2rem;
+    margin-left: 2rem;
 }
 
 .ml-3 {
-  margin-left: 3rem;
+    margin-left: 3rem;
 }
 
 .mr-1 {
-  margin-right: 1rem;
+    margin-right: 1rem;
 }
 
 .mr-2 {
-  margin-right: 2rem;
+    margin-right: 2rem;
 }
 
 .mr-3 {
-  margin-right: 3rem;
+    margin-right: 3rem;
 }
 
 .focus {
-  background-color: rgba(0, 0, 0, 0.15);
+    background-color: rgba(0, 0, 0, 0.15);
 }
 
 [data-content="dados-bancarios"] {
-  margin-left: 1.05rem;
+    margin-left: 1.05rem;
 }
 
 :where(input[type=text], input[type=date]):is(:focus) {
-  transition: ease-in-out border 300ms;
-  box-shadow: 0px 0px 0px 3px rgba(0, 0, 0, 0.1);
-  -webkit-box-shadow: 0px 0px 0px 3px rgba(0, 0, 0, 0.1);
-  -moz-box-shadow: 0px 0px 0px 3px rgba(0, 0, 0, 0.1);
-  outline: none;
+    transition: ease-in-out border 300ms;
+    box-shadow: 0px 0px 0px 3px rgba(0, 0, 0, 0.1);
+    -webkit-box-shadow: 0px 0px 0px 3px rgba(0, 0, 0, 0.1);
+    -moz-box-shadow: 0px 0px 0px 3px rgba(0, 0, 0, 0.1);
+    outline: none;
 }
 
 .alert {
-  display: inline-block;
-  padding: 0.5rem;
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  color: rgba(0, 0, 0, 0.75);
-  border-radius: 5px;
-  margin: 0.5rem 0;
+    display: inline-block;
+    padding: 0.5rem;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    color: rgba(0, 0, 0, 0.75);
+    border-radius: 5px;
+    margin: 0.5rem 0;
+    font-size: 13px;
 
-  * {
-    text-wrap: balance;
-  }
+    * {
+        text-wrap: balance;
+    }
 
-  &.alert-warning {
-    background-color: #FFE10050;
-  }
+    &.alert-warning {
+        background-color: #FFE10050;
 
-  &.alert-danger {
-    background-color: #FF000050;
-  }
+        &:before {
+            content: "Atenção";
+            color: #FF000075;
+        }
+    }
+
+    &.alert-info {
+        background-color: #2631FF25;
+
+        &:before {
+            content: "Informação";
+            color: #2631FF75;
+        }
+    }
+
+    &.alert-danger {
+        background-color: #FF000050;
+
+        &:before {
+            content: "Aviso";
+            color: #FF0000;
+        }
+    }
+
+    &:before {
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+        display: block;
+    }
 }
 
 @media print {
-  div#controle {
-    display: none !important;
-  }
+    div#controle {
+        display: none !important;
+    }
 }
 
 sxs {
-  font-family: 'Calibri', sans-serif !important;
-  text-transform: uppercase !important;
+    font-family: 'Calibri', sans-serif !important;
+    text-transform: uppercase !important;
 }
