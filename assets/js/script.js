@@ -177,7 +177,7 @@ import content from "./modulos/content.js"
           // Verifica se o arquivo é de fato um PDF e transforma em base64 para a lib conseguir ler
           // Envia o conteudo do PDF para a lib e retorna os dados que foram obtidos via regex
           // Sanitiza e insere os dados no formulario - usa a funcao send
-          break
+          break;
         
         case 'access-clipboard':
           // Botão que busca da área de transferência
@@ -190,7 +190,14 @@ import content from "./modulos/content.js"
               console.info(err);
             }
           });
-          break
+          break;
+        
+        case "registros-recuperados":
+          $(action).on("click", function () {
+            const modal = $("#modal-registros");
+            modal[0].showModal();
+          });
+          break;
         
         default:
           console.warn('A ação não foi implementada.');
