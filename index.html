@@ -2091,12 +2091,30 @@
       <input type="file" id="pdf-upload" accept="application/pdf" style="display: none" />
       <button class="btn-controle" data-action="editar">Editar <kbd>Insert</kbd></button>
       <button class="btn-controle" data-action="carregar-com-espelho">Carregar com espelho</button>
+      <button class="btn-controle" data-action="registros-recuperados">Forms. armazenados</button>
       <button class="btn-impressao"><kbd>CTRL</kbd> + <kbd>P</kbd></button>
     </div>
   </div>
 </div>
 
-<dialog id="modal-editar-informacoes">
+<dialog id="modal-registros" class="modal">
+  <div class="modal-header">
+    <h3>Formulários armazenados</h3>
+    <button data-action="fechar-modal">&#10006;</button>
+  </div>
+  
+  <div class="modal-body">
+    <div>
+      <div class="d-flex items-center justify-center flex-wrap gap-1">
+        <button type="button" class="btn-normal btn-primary block mt-1 w-auto">Botão</button>
+        <button type="button" class="btn-normal btn-warning block mt-1 w-auto">Botão</button>
+        <button type="button" class="btn-normal btn-danger block mt-1 w-auto">Botão</button>
+      </div>
+    </div>
+  </div>
+</dialog>
+
+<dialog id="modal-editar-informacoes" class="modal">
   <div class="modal-header">
     <h3>Editar informações</h3>
     <button data-action="fechar-modal">&#10006;</button>
