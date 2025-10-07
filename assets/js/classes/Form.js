@@ -1,4 +1,4 @@
-export default class Capa {
+export default class Form {
   _id = 0;
   _CPF1 = "";
   _CPF2 = "";
