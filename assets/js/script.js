@@ -1,6 +1,6 @@
 import {isEmpty, verificarCPF, zeroEsquerda} from './modulos/utilitarios.js';
-import Capa from "./classes/Capa.js";
-import Capas from "./classes/Capas.js";
+import Form from "./classes/Form.js";
+import Forms from "./classes/Forms.js";
 import content from "./modulos/content.js"
 
 (() => {
@@ -131,7 +131,7 @@ import content from "./modulos/content.js"
       }
     })
     
-    const capa = new Capa({
+    const capa = new Form({
       CPF: formData.filter(f => f[0].includes("CPF")).map(i => i[1]),
       contractNumber: formData.find(f => f[0] === "n_contrato")?.["1"] ?? "",
       agencyNumber: formData.find(f => f[0] === "cc_agencia")?.["1"] ?? "",
@@ -141,7 +141,7 @@ import content from "./modulos/content.js"
       signDate: formData.find(f => f[0] === "data_assinatura")?.["1"] ?? "",
     });
     
-    const capas = new Capas();
+    const capas = new Forms();
     capas.setCapasArmazenadas(capa);
     
     if (itsAllOk) {
@@ -167,7 +167,8 @@ import content from "./modulos/content.js"
           $(action).on("click", (event) => {
             event.preventDefault();
             if (confirm("Você tem certeza que deseja apagar todos os formulário armazenados? Isso é irreversível.")) {
-              localStorage.removeItem("capas-armazenadas");
+              const formsInst = new Forms();
+              formsInst.clearAll();
               window.location.reload();
             }
           })
@@ -241,33 +242,33 @@ import content from "./modulos/content.js"
             tableBodyModal.empty();
             tableBodyModal.off("click"); // Garante que não haja listeners duplicados de cliques anteriores.
             
-            const cs = new Capas();
+            const cs = new Forms();
             const ids = new Set(); // Usar um Set é mais eficiente para verificar a existência de um ID.
             
-            const capasParaExibir = [...cs.getCapasArmazenadas()].toReversed().toSpliced(100);
+            const formsParaExibir = [...cs.getFormsArmazenados()].toReversed().toSpliced(100);
             
-            capasParaExibir.forEach(capa => {
-              if (ids.has(capa.id)) return;
-              ids.add(capa.id);
+            formsParaExibir.forEach(formItem => {
+              if (ids.has(formItem.id)) return;
+              ids.add(formItem.id);
               
               htmlAcc += `
                 <tr>
-                  <!-- <td>${capa.id.toString().slice(-6, -1)}</td> -->
-                  <td>${capa?.["CPF"]?.["0"] ?? ""}</td>
-                  <td>${capa?.["contractNumber"] ?? ""}</td>
-                  <td>${capa?.["saveDate"] ?? ""}</td>
+                  <!-- <td>${formItem.id.toString().slice(-6, -1)}</td> -->
+                  <td>${formItem?.["CPF"]?.["0"] ?? ""}</td>
+                  <td>${formItem?.["contractNumber"] ?? ""}</td>
+                  <td>${formItem?.["saveDate"] ?? ""}</td>
                   <td>
                     <div class="d-flex items-center justify-center flex-wrap gap-1">
-                      <button data-id="${capa.id}" data-actionX="print" type="button" class="btn-normal btn-primary block w-auto">Imprimir</button>
-                      <button data-id="${capa.id}" data-actionX="edit" type="button" class="btn-normal btn-warning block w-auto">Editar</button>
-                      <button data-id="${capa.id}" data-actionX="delete" type="button" class="btn-normal btn-danger block w-auto">Apagar</button>
+                      <button data-id="${formItem.id}" data-actionX="print" type="button" class="btn-normal btn-primary block w-auto">Imprimir</button>
+                      <button data-id="${formItem.id}" data-actionX="edit" type="button" class="btn-normal btn-warning block w-auto">Editar</button>
+                      <button data-id="${formItem.id}" data-actionX="delete" type="button" class="btn-normal btn-danger block w-auto">Apagar</button>
                     </div>
                   </td>
                 </tr>
               `;
             });
             
-            if (capasParaExibir.length === 0) htmlAcc = `<tr><td colspan="4">Nenhum formulário foi encontrado.</td></tr>`
+            if (formsParaExibir.length === 0) htmlAcc = `<tr><td colspan="4">Nenhum formulário foi encontrado.</td></tr>`
             
             // Adiciona todo o HTML gerado ao corpo da tabela de uma só vez.
             tableBodyModal.html(htmlAcc);
@@ -285,10 +286,10 @@ import content from "./modulos/content.js"
               }
               
               if (btnAction === "edit" || btnAction === "print") {
-                const capaEncontrada = cs.find(btnId);
+                const formEncontrado = cs.find(btnId);
                 
-                if (capaEncontrada) {
-                  setAllFields(capaEncontrada);
+                if (formEncontrado) {
+                  setAllFields(formEncontrado);
                   modal?.[0]?.close();
                   setTimeout(() => {
                     if (btnAction === "edit") $("#modal-editar-informacoes")?.[0]?.showModal();
@@ -521,6 +522,7 @@ import content from "./modulos/content.js"
     
     const input = document.getElementById('pdf-upload');
     
+    // TODO: Há um erro no carregamento do arquivo para verificação. Corrigir.
     input.addEventListener('change', async (event) => {
       const file = event.target.files[0];
       if (!file) return;
@@ -532,7 +534,7 @@ import content from "./modulos/content.js"
       
       const reader = new FileReader();
       reader.onload = async () => {
-        const typedarray = new Uint8Array(this.result);
+        const typedarray = new Uint8Array(this?.result);
         
         const loadingTask = pdfjsLib.getDocument({data: typedarray});
         const pdf = await loadingTask.promise;
