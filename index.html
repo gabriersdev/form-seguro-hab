@@ -2104,12 +2104,19 @@
   </div>
   
   <div class="modal-body">
-    <div>
-      <div class="d-flex items-center justify-center flex-wrap gap-1">
-        <button type="button" class="btn-normal btn-primary block mt-1 w-auto">Botão</button>
-        <button type="button" class="btn-normal btn-warning block mt-1 w-auto">Botão</button>
-        <button type="button" class="btn-normal btn-danger block mt-1 w-auto">Botão</button>
-      </div>
+    <div class="overflow-x">
+      <table>
+        <thead>
+          <!-- <th>#</th> -->
+          <th>CPF do 1º proponente</th>
+          <th>N.º do contrato</th>
+          <th>Data de envio</th>
+          <th>Ações</th>
+        </thead>
+        <tbody id="modal-registros-table-body">
+
+        </tbody>
+      </table>
     </div>
   </div>
 </dialog>

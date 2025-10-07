@@ -1,10 +1,10 @@
-import {
-  isEmpty, verificarCPF, zeroEsquerda,
-} from './modulos/utilitarios.js';
+import {isEmpty, verificarCPF, zeroEsquerda} from './modulos/utilitarios.js';
+import Capa from "./classes/Capa.js";
+import Capas from "./classes/Capas.js";
 import content from "./modulos/content.js"
 
 (() => {
-  const MODE = 1
+  const MODE = 0;
   
   try {
     document.querySelector('#page-container').innerHTML += content
@@ -43,6 +43,25 @@ import content from "./modulos/content.js"
     setTimeout(() => {
       document.querySelector('#modal-editar-informacoes').querySelectorAll('input')[0].focus();
     }, 0);
+  }
+  
+  function setAllFields(data) {
+    console.log(data);
+    
+    Object.entries(data).forEach(([key, value]) => {
+      if (key === "CPF") {
+        value.forEach((v, i) => {
+          if (!v) return;
+          $(`[data-input="CPF_${i + 1}"]`).val(v);
+        })
+      }
+      else if (key === "accountNumber") $(`[data-input="cc_numero"]`).val(value);
+      else if (key === "agencyNumber") $(`[data-input="cc_agencia"]`).val(value);
+      else if (key === "operationNumber") $(`[data-input="cc_operacao"]`).val(value);
+      else if (key === "cityName") $(`[data-input="cidade"]`).val(value);
+      else if (key === "contractNumber") $(`[data-input="n_contrato"]`).val(value);
+      else if (key === "signDate") $(`[data-input="data_assinatura"]`).val(value);
+    })
   }
   
   function send(form) {
@@ -114,6 +133,19 @@ import content from "./modulos/content.js"
       }
     })
     
+    const capa = new Capa({
+      CPF: formData.filter(f => f[0].includes("CPF")).map(i => i[1]),
+      contractNumber: formData.find(f => f[0] === "n_contrato")?.["1"] ?? "",
+      agencyNumber: formData.find(f => f[0] === "cc_agencia")?.["1"] ?? "",
+      operationNumber: formData.find(f => f[0] === "cc_numero")?.["1"]?.split(".")?.[0] ?? "",
+      accountNumber: formData.find(f => f[0] === "cc_numero")?.["1"]?.split(".")?.[1] ?? "",
+      cityName: formData.find(f => f[0] === "cidade")?.["1"] ?? "",
+      signDate: formData.find(f => f[0] === "data_assinatura")?.["1"] ?? "",
+    });
+    
+    const capas = new Capas();
+    capas.setCapasArmazenadas(capa);
+    
     if (itsAllOk) {
       formData.forEach(i => {
         const sxs = document.querySelector(`sxs[refer="${i[0]}"]`)
@@ -125,7 +157,6 @@ import content from "./modulos/content.js"
       setTimeout(() => {
         document.querySelector('.btn-impressao').click();
       }, 500);
-      
     }
   }
   
@@ -195,7 +226,79 @@ import content from "./modulos/content.js"
         case "registros-recuperados":
           $(action).on("click", function () {
             const modal = $("#modal-registros");
-            modal[0].showModal();
+            const tableBodyModal = $("#modal-registros-table-body");
+            let htmlAcc = ``;
+            
+            // Limpa o conteúdo anterior da tabela e remove quaisquer listeners antigos.
+            tableBodyModal.empty();
+            tableBodyModal.off("click"); // Garante que não haja listeners duplicados de cliques anteriores.
+            
+            const cs = new Capas();
+            const ids = new Set(); // Usar um Set é mais eficiente para verificar a existência de um ID.
+            
+            const capasParaExibir = [...cs.getCapasArmazenadas()].toReversed().toSpliced(100);
+            
+            capasParaExibir.forEach(capa => {
+              if (ids.has(capa.id)) return;
+              ids.add(capa.id);
+              
+              htmlAcc += `
+                <tr>
+                  <!-- <td>${capa.id.toString().slice(-6, -1)}</td> -->
+                  <td>${capa?.["CPF"]?.["0"] ?? ""}</td>
+                  <td>${capa?.["contractNumber"] ?? ""}</td>
+                  <td>${capa?.["saveDate"] ?? ""}</td>
+                  <td>
+                    <div class="d-flex items-center justify-center flex-wrap gap-1">
+                      <button data-id="${capa.id}" data-action="print" type="button" class="btn-normal btn-primary block w-auto">Imprimir</button>
+                      <button data-id="${capa.id}" data-action="edit" type="button" class="btn-normal btn-warning block w-auto">Editar</button>
+                      <button data-id="${capa.id}" data-action="delete" type="button" class="btn-normal btn-danger block w-auto">Apagar</button>
+                    </div>
+                  </td>
+                </tr>
+              `;
+            });
+            
+            // Adiciona todo o HTML gerado ao corpo da tabela de uma só vez.
+            tableBodyModal.html(htmlAcc);
+            
+            // Delegação de Eventos: Adiciona um único event listener ao pai (tableBodyModal).
+            tableBodyModal.on("click", "button", function (e) {
+              e.preventDefault();
+              const target = $(this);
+              const btnId = target.data("id");
+              const btnAction = target.data("action");
+              
+              if (!btnId || !btnAction) {
+                alert("Algo não saiu como deveria... Contate o administrador.");
+                return;
+              }
+              
+              console.log("Ação:", btnAction, "ID:", btnId);
+              
+              if (btnAction === "edit" || btnAction === "print") {
+                const capaEncontrada = cs.find(btnId);
+
+                if (capaEncontrada) {
+                  setAllFields(capaEncontrada);
+                  modal?.[0]?.close();
+                  setTimeout(() => {
+                    if (btnAction === "edit") $("#modal-editar-informacoes")?.[0]?.showModal();
+                    // Botão de impressão do formulário, dentro do modal de editar informações
+                    else $("#modal-editar-informacoes form button[type=submit]")?.[0]?.click();
+                  }, 500);
+                }
+                
+                else alert("Nenhum registro foi encontrado para o id fornecido. Tente novamente.");
+              } else if (btnAction === "delete") {
+                cs.remove(btnId);
+                alert("Registro removido com sucesso!");
+                window.location.reload();
+              }
+            });
+            
+            // Mostra o modal.
+            modal?.[0]?.showModal();
           });
           break;
         

@@ -11,6 +11,7 @@
 
 @import url(./elementos/controle.css);
 @import url(elementos/modal.css);
+@import url(elementos/table.css);
 
 html {
     scroll-behavior: smooth;
@@ -183,4 +184,8 @@ sxs {
 
 .w-auto {
     width: auto !important;
+}
+
+.overflow-x {
+    overflow-x: scroll;
 }
