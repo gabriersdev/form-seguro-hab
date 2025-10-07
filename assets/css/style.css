@@ -10,7 +10,7 @@
 @import url(./componentes/kdb.css);
 
 @import url(./elementos/controle.css);
-@import url(./elementos/modal-editar-informacoes.css);
+@import url(elementos/modal.css);
 
 html {
     scroll-behavior: smooth;
@@ -159,4 +159,28 @@ textarea::placeholder {
 sxs {
     font-family: 'Calibri', sans-serif !important;
     text-transform: uppercase !important;
+}
+
+.d-flex {
+    display: flex;
+}
+
+.items-center {
+    align-items: center;
+}
+
+.justify-center {
+    justify-content: center;
+}
+
+.flex-wrap {
+    /*flex-wrap: wrap;*/
+}
+
+.gap-1 {
+    gap: 0.5rem;
+}
+
+.w-auto {
+    width: auto !important;
 }

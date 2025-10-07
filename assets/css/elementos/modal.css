@@ -1,4 +1,4 @@
-#modal-editar-informacoes{
+.modal{
   font-family: 'Arial', sans-serif !important;
 
   width: min(calc(100vw - 0.5rem), 800px);
@@ -7,11 +7,11 @@
   padding: 1rem;
 }
 
-#modal-editar-informacoes::backdrop{
+.modal::backdrop{
   background-color: rgba(0, 0, 0, 0.5);
 }
 
-#modal-editar-informacoes .modal-header{
+.modal .modal-header{
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -82,6 +82,36 @@ button[type=submit], .btn-normal{
     background-color: rgba(0, 0, 0, 0.25);
     border-color: rgba(0, 0, 0, 0.1);
   }
+}
+
+.btn-primary {
+    border: 1px solid #2631FF35;
+    background-color: #2631FF50;
+
+    &:is(:focus, :hover){
+        background-color: #2631FF75 !important;
+        border-color: #2631FF75 !important;
+    }
+}
+
+.btn-warning {
+    border: 1px solid #F2CD1135;
+    background-color: #F2CD1160;
+
+    &:is(:focus, :hover){
+        background-color: #F2CD1175 !important;
+        border-color: #F2CD11 !important;
+    }
+}
+
+.btn-danger {
+    border: 1px solid #FF000045;
+    background-color: #FF000035;
+
+    &:is(:focus, :hover){
+        background-color: #FF000065 !important;
+        border-color: #FF000075 !important;
+    }
 }
 
 .area-validation-CPF{
