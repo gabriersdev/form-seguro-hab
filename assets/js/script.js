@@ -46,16 +46,14 @@ import content from "./modulos/content.js"
   }
   
   function setAllFields(data) {
-    console.log(data);
-    
+    $("#modal-editar-informacoes form")?.[0]?.reset();
     Object.entries(data).forEach(([key, value]) => {
       if (key === "CPF") {
         value.forEach((v, i) => {
           if (!v) return;
           $(`[data-input="CPF_${i + 1}"]`).val(v);
         })
-      }
-      else if (key === "accountNumber") $(`[data-input="cc_numero"]`).val(value);
+      } else if (key === "accountNumber") $(`[data-input="cc_numero"]`).val(value);
       else if (key === "agencyNumber") $(`[data-input="cc_agencia"]`).val(value);
       else if (key === "operationNumber") $(`[data-input="cc_operacao"]`).val(value);
       else if (key === "cityName") $(`[data-input="cidade"]`).val(value);
@@ -165,6 +163,16 @@ import content from "./modulos/content.js"
     
     acoes.forEach((action) => {
       switch (action.dataset.action) {
+        case "clear-all-ls":
+          $(action).on("click", (event) => {
+            event.preventDefault();
+            if (confirm("Você tem certeza que deseja apagar todos os formulário armazenados? Isso é irreversível.")) {
+              localStorage.removeItem("capas-armazenadas");
+              window.location.reload();
+            }
+          })
+          break;
+        
         case 'acao':
           break;
         
@@ -212,7 +220,7 @@ import content from "./modulos/content.js"
         
         case 'access-clipboard':
           // Botão que busca da área de transferência
-          $(action).on('click', async function () {
+          $(action).on('click', async () => {
             try {
               const text = await navigator.clipboard.readText();
               writeInputs(text);
@@ -224,7 +232,7 @@ import content from "./modulos/content.js"
           break;
         
         case "registros-recuperados":
-          $(action).on("click", function () {
+          $(action).on("click", () => {
             const modal = $("#modal-registros");
             const tableBodyModal = $("#modal-registros-table-body");
             let htmlAcc = ``;
@@ -250,14 +258,16 @@ import content from "./modulos/content.js"
                   <td>${capa?.["saveDate"] ?? ""}</td>
                   <td>
                     <div class="d-flex items-center justify-center flex-wrap gap-1">
-                      <button data-id="${capa.id}" data-action="print" type="button" class="btn-normal btn-primary block w-auto">Imprimir</button>
-                      <button data-id="${capa.id}" data-action="edit" type="button" class="btn-normal btn-warning block w-auto">Editar</button>
-                      <button data-id="${capa.id}" data-action="delete" type="button" class="btn-normal btn-danger block w-auto">Apagar</button>
+                      <button data-id="${capa.id}" data-actionX="print" type="button" class="btn-normal btn-primary block w-auto">Imprimir</button>
+                      <button data-id="${capa.id}" data-actionX="edit" type="button" class="btn-normal btn-warning block w-auto">Editar</button>
+                      <button data-id="${capa.id}" data-actionX="delete" type="button" class="btn-normal btn-danger block w-auto">Apagar</button>
                     </div>
                   </td>
                 </tr>
               `;
             });
+            
+            if (capasParaExibir.length === 0) htmlAcc = `<tr><td colspan="4">Nenhum formulário foi encontrado.</td></tr>`
             
             // Adiciona todo o HTML gerado ao corpo da tabela de uma só vez.
             tableBodyModal.html(htmlAcc);
@@ -267,18 +277,16 @@ import content from "./modulos/content.js"
               e.preventDefault();
               const target = $(this);
               const btnId = target.data("id");
-              const btnAction = target.data("action");
+              const btnAction = target.data("actionx");
               
               if (!btnId || !btnAction) {
                 alert("Algo não saiu como deveria... Contate o administrador.");
                 return;
               }
               
-              console.log("Ação:", btnAction, "ID:", btnId);
-              
               if (btnAction === "edit" || btnAction === "print") {
                 const capaEncontrada = cs.find(btnId);
-
+                
                 if (capaEncontrada) {
                   setAllFields(capaEncontrada);
                   modal?.[0]?.close();
@@ -287,9 +295,8 @@ import content from "./modulos/content.js"
                     // Botão de impressão do formulário, dentro do modal de editar informações
                     else $("#modal-editar-informacoes form button[type=submit]")?.[0]?.click();
                   }, 500);
-                }
+                } else alert("Nenhum registro foi encontrado para o id fornecido. Tente novamente.");
                 
-                else alert("Nenhum registro foi encontrado para o id fornecido. Tente novamente.");
               } else if (btnAction === "delete") {
                 cs.remove(btnId);
                 alert("Registro removido com sucesso!");
@@ -524,7 +531,7 @@ import content from "./modulos/content.js"
       }
       
       const reader = new FileReader();
-      reader.onload = async function () {
+      reader.onload = async () => {
         const typedarray = new Uint8Array(this.result);
         
         const loadingTask = pdfjsLib.getDocument({data: typedarray});
