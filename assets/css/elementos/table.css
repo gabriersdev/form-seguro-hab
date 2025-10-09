@@ -1,0 +1,32 @@
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-family: 'Arial', sans-serif;
+    border: 1px solid #D2D2D2;
+}
+
+th, td {
+    padding: 12px 15px;
+    text-align: left;
+    border: 1px solid #D2D2D2;
+}
+
+th {
+    background-color: #F6F6F6;
+    font-weight: bold;
+}
+
+tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+tr:hover {
+    background-color: #F1F1F1;
+    cursor: pointer;
+}
+
+td {
+    border-bottom: 1px solid #ddd;
+    text-wrap: nowrap;
+}
