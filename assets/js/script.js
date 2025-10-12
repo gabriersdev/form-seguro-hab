@@ -83,7 +83,7 @@ import content from "./modulos/content.js"
     }
     
     if (cOperation[1] && cNumber[1]) {
-      cNumber[1] = `${cOperation[1]}.${cNumber[1]}`;
+      cNumber[1] = `${cOperation[1].toString().substring(0, 4)}.${cNumber[1]}`;
       formData.splice(formData.indexOf(cOperation ?? []), 1);
     } else {
       alert("Faltou preencher o número ou a operação da conta!")
@@ -470,19 +470,26 @@ import content from "./modulos/content.js"
     return result.slice(-length);
   }
   
+  let iterate = 0;
   const writeInputs = (value) => {
-    let parts = value.trim().split('.');
+    let parts = value.trim().split('.').map(v => v.replace(/\D/g, ""));
     if (parts.length === 1) parts = value.trim().split(" - ");
     if (parts.length === 1) parts = value.trim().split("-");
     
     if ((parts.length === 3 || parts.length === 4) && parts.join('').match(/\d/g).length) {
+      iterate = 0;
       const part2 = parts[2]?.match(/\d/g)?.join("");
       const part3 = parts[3]?.match(/\d/g)?.join("");
       
       $('#cc_agencia').val(parts[0].substring(0, 4));
       $('#cc_operacao').val(parts[1].substring(0, 4));
       $('#cc_numero').val(value?.match(/-/g)?.join("").length > 1 ? replaceNullForZero(part2.substring(0, part2.length - 1), 12, "left") + "-" + (part3 || part2.substring(part2.length - 1, part2.length)) : (replaceNullForZero(part2.substring(0, part2.length - 1), 12, "left") + "-" + part2.substring(part2.length - 1, part2.length)) || "");
-    } else alert('Formato inválido. Use o padrão: 0000.0000.000000000000-0');
+    } else if (iterate === 0) alert('Formato inválido. Use o padrão: 0000.0000.000000000000-0');
+    else {
+      $('#cc_agencia').val(parts.join("").substring(0, 4));
+      $('#cc_operacao').val(parts.join("").substring(4, 4 + 4));
+    }
+    iterate += 1;
   }
   
   const beforePrint = () => {
