@@ -22,6 +22,11 @@ body {
     font-size: 1.2rem;
 }
 
+body,
+body * {
+    user-select: none !important;
+}
+
 .swal2-popup {
     font-size: 16px !important;
 }
@@ -121,7 +126,7 @@ textarea::placeholder {
         background-color: #FFE10050;
 
         &:before {
-            content: "Atenção";
+            content: "Atenção!";
             color: #FF000075;
         }
     }
@@ -130,7 +135,7 @@ textarea::placeholder {
         background-color: #2631FF25;
 
         &:before {
-            content: "Informação";
+            content: "Sabia que...";
             color: #2631FF75;
         }
     }

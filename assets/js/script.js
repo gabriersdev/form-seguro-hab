@@ -105,6 +105,25 @@ import content from "./modulos/content.js"
     const city = formData.find(f => f[0] === "cidade");
     const signDate = formData.find(f => f[0] === "data_assinatura");
     
+    if (signDate[1]) {
+      const date = new Date(`${signDate[1]}T00:00:00-03:00`)
+      if (date == "Invalid Date") {
+        alert("A data de assinatura não é válida!")
+        itsAllOk = false;
+        return;
+      } else if (date.getFullYear() !== new Date().getFullYear()) {
+        if (!confirm("O ano na data de assinatura é diferente do ano atual, informado pelo seu navegador.")) {
+          itsAllOk = false;
+          return;
+        }
+      } else if (date.getMonth() !== new Date().getMonth()) {
+        if (!confirm("O mês na data de assinatura é diferente do mês atual, informado pelo seu navegador.")) {
+          itsAllOk = false;
+          return;
+        }
+      }
+    }
+    
     if (city[1] && signDate[1]) {
       const date = new Date(`${signDate[1]}T00:00:00-03:00`)
       formData.push(["date_full", `${city[1]}, ${('0' + date.getDate()).slice(-2)} de ${date.toLocaleDateString("pt-BR", {
@@ -228,6 +247,17 @@ import content from "./modulos/content.js"
             } catch (err) {
               console.info('Erro ao acessar a área de transferência.');
               console.info(err);
+            }
+          });
+          break;
+        
+        case 'update-sign-date':
+          $(action).on("click", () => {
+            const now = new Date();
+            $("#data_assinatura").val(`${now.getFullYear()}-${('0' + (now.getMonth() + 1)).slice(-2)}-${('0' + now.getDate()).slice(-2)}`);
+            if (new Date($("#data_assinatura").val()) == "Invalid Date") {
+              $("#data_assinatura").val("");
+              alert("Não foi possível atualizar a data de assinatura para a data atual. Atualize manualmente.");
             }
           });
           break;
