@@ -2125,7 +2125,7 @@
       <div class="group">
         <h4>Proponentes</h4>
         
-        <div class="form-group">
+        <div class="form-group d-flex items-center flex-wrap gap-1">
           <div class="area-validation-CPF">
             <label for="CPF_1">CPF</label>
             <input type="text" size="16" id="CPF_1" data-input="CPF_1" data-mascara="cpf" placeholder="000.000.000-00" maxlength="14" required>
@@ -2138,6 +2138,9 @@
             <span class="icon-invalid-CPF" title="CPF inválido">&#10005;</span>
           </div>
           <br>
+        </div>
+        
+        <div class="form-group d-flex items-center flex-wrap gap-1 mt-1">
           <div class="area-validation-CPF">
             <label for="CPF_3">CPF</label>
             <input type="text" size="16" id="CPF_3" data-input="CPF_3" data-mascara="cpf" placeholder="000.000.000-00" maxlength="14">
@@ -2167,9 +2170,24 @@
           <div class="alert alert-info">
             <p>Para usar o número da conta retirado do SICAQ ou SIOPI, basta colar todo o contéudo no padrão 0000.0000.000000000000-0 ou 0000-0000-000000000000-0, sendo 4 números para agência + separador + 4 números para a operação + separador + número da conta com 12 dígitos + separador + número do dígito verificador, no campo "Agência".</p>
           </div>
-          <input type="text" id="cc_agencia" data-input="cc_agencia" placeholder="Agência" size="4" data-mascara="agencia" minlength="4" maxlength="4" autocomplete="off" value="2187" pattern="\d{4}" required>
+          <input type="text" id="cc_agencia" data-input="cc_agencia" placeholder="Agência" size="8" data-mascara="agencia" minlength="4" maxlength="4" autocomplete="off" value="2187" pattern="\d{4}" required list="agency-list">
+          <datalist id="agency-list">
+            <option value="2187">BH-MG 2187 - 21 de Abril</option>
+            <option value="0085">BH-MG 0085 - Tupinambás</option>
+            <option value="1667">BH-MG 1667 - Park Royal</option>
+            <option value="0092">BH-MG 0092 - Renascença</option>
+            <option value="0091">BH-MG 0091 - Savassi</option>
+            <option value="0815">BH-MG 0815 - Minas Shopping (Desativada)</option>
+            <option value="0815">BH-MG 4157 - Shopping Cidade</option>
+            <option value="1742">Sabará-MG 1742 - Sabará</option>
+            <option value="4964">Sabará-MG 4964 - Ana Lúcia</option>
+          </datalist>
           <label for="cc_operacao" style="display: none">Operação</label>
-          <input type="text" id="cc_operacao" data-input="cc_operacao" placeholder="Operação" size="5" data-mascara="operacao" minlength="3" maxlength="4" value="3701" autocomplete="off" pattern="\d{3,4}" required>
+          <input type="text" id="cc_operacao" data-input="cc_operacao" placeholder="Operação" size="8" data-mascara="operacao" minlength="3" maxlength="4" value="3701" autocomplete="off" pattern="\d{3,4}" required list="operation-list">
+          <datalist id="operation-list">
+            <option value="3701">3701 - Conta Corrente</option>
+            <option value="1288">1288 - Conta Poupança</option>
+          </datalist>
           <label for="cc_numero" style="display: none">Número</label>
           <input type="text" id="cc_numero" data-input="cc_numero" placeholder="Número" size="14" data-mascara="conta" minlength="14" maxlength="14" autocomplete="off" required>
           <button class="btn-normal" type="button" data-action="access-clipboard" style="display: inline; width: min-content" tabindex="-1">Colar</button>
@@ -2185,6 +2203,7 @@
         <div class="form-group">
           <label for="data_assinatura">Data de assinatura</label>
           <input type="date" id="data_assinatura" data-input="data_assinatura" required>
+          <button class="btn-normal" type="button" data-action="update-sign-date" style="display: inline; width: min-content" tabindex="-1">Atualizar</button>
         </div>
       </div>
       
@@ -2192,7 +2211,10 @@
         <p>Informe pelo menos um número de CPF, o número do contrato e os dados da conta bancária, além da cidade e data atual para que o formulário seja gerado.</p>
       </div>
       
-      <button type="submit" class="block mt-1">Enviar <kbd>Enter</kbd></button>
+      <div class="d-flex items-center flex-wrap justify-center">
+        <button type="submit" class="block mt-1">Enviar <kbd>Enter</kbd></button>
+        <button type="reset" class="block mt-1 ml-2 mr-2">Limpar</button>
+      </div>
     </form>
   </div>
 </dialog>
